@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - junimo_v3</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel = "icon" type="image/png" href="../img/logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>
+
+<body style="background-color: #1b2838;">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="../../index.html">
+                <img src="../img/logo.png" width="30" height="30" class="d-inline-block align-text-top" style="margin-right:10px;">
+                junimo_v3
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../../index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="store.html">Store</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="support.html">Support</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Cart</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Username
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Games</a></li>
+                            <li><a class="dropdown-item" href="account.html">Account</a></li>
+                            <li><a class="dropdown-item" href="friends.html">Friends</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="d-flex ms-auto" role="search">
+                    <button class="btn btn-success btn-sm" type="button" style="height: 30px;">Login</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <h2 class="text-center mb-4 text-white">Your Shopping Cart</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card bg-primary-subtle text-white shadow-lg">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <div class="game-cart-item mb-2">
+                                <img src="../img/featured1.jpg" class="game-thumbnail">
+                                <div class="game-info">
+                                    <div class="game-title">Cyberpunk 2077</div>
+                                    <div class="game-genres">Action | RPG | Sci-Fi</div>
+                                    <div class="game-price">$59.99</div>
+                                </div>
+                            </div>
+                            <div class="game-cart-item mb-2">
+                                <img src="../img/featured2.jpg" class="game-thumbnail">
+                                <div class="game-info">
+                                    <div class="game-title">Counter-Strike 2</div>
+                                    <div class="game-genres">FPS | Shooter | Multiplayer</div>
+                                    <div class="game-price">Free</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <h5 class="text-black mb-0">Total: $59.99</h5>
+                            <button class="btn btn-primary">Checkout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-white mt-5 py-4" style="background-color: #1b2838;">
+        <div class="container">
+            <p>&copy; 2025 junimo_v3. All rights reserved.</p>
+            <ul class="list-inline">
+                <li class="list-inline-item"><a href="#" class="text-white">Privacy Policy</a></li>
+                <li class="list-inline-item"><a href="#" class="text-white">Terms of Service</a></li>
+                <li class="list-inline-item"><a href="#" class="text-white">Contact Us</a></li>
+            </ul>
+        </div>
+    </footer>
+</body>
+
+</html>

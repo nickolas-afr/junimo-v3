@@ -1,0 +1,69 @@
+﻿@model IEnumerable<junimo_v3.Models.Game>
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4 text-white">Welcome to junimo_v3</h1>
+    <p class="text-white">Your one-stop shop for all your gaming needs</p>
+</div>
+
+<div id="carousel-bg" class="container mt-5">
+    <h5 class="featured-text mb-3 text-white">FEATURED AND RECOMMENDED</h5>
+    <div id="gameCarousel" class="carousel carousel-dark slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            @if (Model != null && Model.Any())
+            {
+                var isFirst = true;
+                foreach (var game in Model.Where(g => g.IsFeatureRecommended))
+                {
+                    <div class="carousel-item @(isFirst ? "active" : "")">
+                        <div class="row no-gutters">
+                            <div class="col-md-1"></div>
+                            <div class="col-md-6 p-0">
+                                <img src="@game.ImageUrl" class="d-block w-100" alt="@game.Title">
+                            </div>
+                            <div class="col-md-4 p-0 d-flex flex-column justify-content-center">
+                                <div class="game-details">
+                                    <h5>@game.Title</h5>
+                                    <!--<p><strong>Genre:</strong> @game.GameGenresV2</p>-->
+                                    <p><strong> Description:</strong> @game.Description</p>
+                                    <p><strong>Release Date:</strong> @game.ReleaseDate.ToString("MMMM dd, yyyy")</p>
+                                    <p><strong>Price:</strong>
+                                        @if (game.Price == 0)
+                                        {
+                                            <span class="text-success">Free</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-success">@game.Price€</span>
+                                        }
+                                    </p>
+                                    <a asp-controller="Game" asp-action="GameDetails" asp-route-id="@game.GameId" class="btn btn-sm btn-primary" style="margin-top:10%;">View Details</a>
+                                </div>
+                            </div>
+                            <div class="col-md-1"></div>
+                        </div>
+                    </div>
+                    isFirst = false;
+                }
+            }
+            else
+            {
+                <div class="carousel-item active">
+                    <div class="text-center text-white">
+                        <p>No featured games available at the moment.</p>
+                    </div>
+                </div>
+            }
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#gameCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#gameCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</div>

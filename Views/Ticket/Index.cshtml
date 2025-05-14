@@ -1,0 +1,53 @@
+﻿@model IEnumerable<junimo_v3.Models.Ticket>
+
+@{
+    ViewData["Title"] = "My Support Tickets";
+}
+
+<h1>My Support Tickets</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Ticket</a>
+</p>
+
+<div class="ticket table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ticket #</th>
+                <th>Issue Type</th>
+                <th>Created</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ticketId</td>
+                    <td>@item.issueType</td>
+                    <td>@item.createdDate.ToString("MMM dd, yyyy")</td>
+                    <td>
+                        <span class="badge @(item.status == "Open" ? "bg-warning" :
+                                          item.status == "In Progress" ? "bg-info" :
+                                          item.status == "Resolved" ? "bg-success" :
+                                          item.status == "Closed" ? "bg-danger" : "bg-dark")">
+                            @item.status
+                        </span>
+                    </td>
+                    <td>
+                        <a asp-controller="Ticket" asp-action="TicketDetails" asp-route-id="@item.ticketId" class="btn btn-sm btn-primary">View Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You haven't created any support tickets yet.
+    </div>
+}

@@ -1,0 +1,325 @@
+﻿:root {
+    --steam-bg-dark: #171a21;
+    --steam-bg-medium: #1b2838;
+    --steam-bg-light: #2a3f5a;
+    --steam-highlight: #66c0f4;
+    --steam-text: #c7d5e0;
+    --steam-text-light: #ffffff;
+    --steam-accent: #1a3c5d;
+    --steam-accent-hover: #264b70;
+    --steam-button: #57cbde;
+    --steam-button-hover: #66c0f4;
+}
+
+body {
+    background-color: var(--steam-bg-medium);
+    color: var(--steam-text);
+    margin-bottom: 60px;
+}
+
+.navbar {
+    background-color: var(--steam-bg-dark) !important;
+    border-bottom: 1px solid rgba(58, 120, 177, 0.3);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--steam-text) !important;
+}
+
+.nav-link:hover, .navbar-brand:hover {
+    color: var(--steam-highlight) !important;
+}
+
+.nav-link.active {
+    color: var(--steam-button) !important;
+    font-weight: 500;
+}
+
+.dropdown-menu {
+    background-color: var(--steam-bg-dark);
+    border: 1px solid var(--steam-bg-light);
+}
+
+.dropdown-item {
+    color: var(--steam-text);
+}
+
+.dropdown-item:hover {
+    background-color: var(--steam-accent);
+    color: var(--steam-highlight);
+}
+
+.profile-icon {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--steam-highlight);
+}
+
+#carousel-bg {
+    background: #0000002c;
+    border-radius: 30px;
+    padding-bottom: 4%;
+    padding-top: 4%;
+}
+
+.featured-text {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-left: 10%;
+}
+
+.carousel-item img {
+    object-fit: cover;
+    height: 400px;
+    padding-left: 5%;
+}
+
+.carousel-item .game-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    padding: 20px;
+    color: white;
+}
+
+.carousel-item .game-details button {
+    margin-top: auto;
+    width: 75%;
+}
+
+.carousel-item .game-details h5 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.carousel-item .game-details p {
+    font-size: 1rem;
+    margin: 5px 0;
+}
+
+.carousel-item .col-md-6 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.carousel-control-prev-icon, .carousel-control-next-icon {
+    background-color: rgba(27, 40, 56, 0.7);
+    border-radius: 5px;
+}
+
+.text-success {
+    color: #8cc414 !important;
+}
+
+.game-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.game-list-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 15px;
+    transition: background-color 0.3s ease;
+    color: white;
+}
+
+.game-list-item:hover {
+    background-color: var(--steam-accent-hover);
+    transform: translateY(-2px);
+}
+
+.game-list-item img {
+    object-fit: contain;
+    margin-right: 25px;
+    width: 200px;
+    height: 100px;
+}
+
+.game-list-item .game-info {
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.game-list-item .game-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.game-list-item .game-price {
+    font-size: 1.1rem;
+    color: #48ff00;
+}
+
+.game-list-item .game-genres {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.form-control, .form-select {
+    background-color: var(--steam-bg-light);
+    border: 1px solid var(--steam-accent);
+    color: var(--steam-text);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--steam-bg-light);
+    color: var(--steam-text-light);
+    box-shadow: 0 0 0 0.25rem rgba(102, 192, 244, 0.25);
+    border-color: var(--steam-highlight);
+}
+
+.form-control::placeholder {
+    color: white;
+}
+
+#form-btn {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.form-label {
+    color: var(--steam-text-light);
+}
+
+#checkout .form-control {
+    background-color: var(--steam-bg-medium);
+    border: 1px solid var(--steam-accent);
+    color: var(--steam-text);
+}
+
+.order .table th, .order .table td {
+    background-color: var(--steam-bg-medium);
+    color: var(--steam-text-light);
+    width: 100%;
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #34495e;
+}
+
+.order .table tfoot th {
+    font-size: 1.1rem;
+    text-align: left;
+}
+
+.order .table th {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.list-group-item {
+    background-color: var(--steam-bg-light);
+    color: var(--steam-text-light)
+}
+
+.ticket .table th, .ticket .table td {
+    background-color: var(--steam-bg-light);
+    color: var(--steam-text-light);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--steam-button);
+    border-color: var(--steam-button);
+    color: var(--steam-bg-dark);
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    background-color: var(--steam-button-hover);
+    border-color: var(--steam-button-hover);
+}
+
+.btn-success {
+    background-color: #5c7e10;
+    border-color: #4c6b0b;
+}
+
+.btn-success:hover {
+    background-color: #6d9413;
+    border-color: #5c7e10;
+}
+
+.game-cart-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    transition: background-color 0.3s ease;
+    background-color: #00000071;
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.game-cart-item .game-title {
+    font-size: 2.25rem;
+    font-weight: bold;
+}
+
+.game-cart-item:hover {
+    background-color: #5c7e9b7a;
+}
+
+.game-cart-item .game-thumbnail {
+    object-fit: cover;
+    margin-right: 20px;
+    width: 200px;
+    height: auto;
+}
+
+.game-cart-item .game-info {
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.game-cart-item .game-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.game-cart-item .game-price {
+    font-size: 1.1rem;
+    color: #48ff00;
+}
+
+.card {
+    background-color: var(--steam-accent);
+    border: none;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+    color: var(--steam-text-light)
+}
+
+
+
+footer {
+    background-color: var(--steam-bg-dark) !important;
+    border-top: 1px solid rgba(58, 120, 177, 0.3);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+footer div {
+    color: var(--steam-text);
+    text-align: center;
+    padding: 5px;
+}
+
+footer a {
+    color: var(--steam-highlight) !important;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}

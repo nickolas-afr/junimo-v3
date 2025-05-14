@@ -1,0 +1,76 @@
+﻿@model junimo_v3.Models.Game
+
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.Title">
+    </div>
+    <div class="col-md-8">
+        <h1>@Model.Title</h1>
+        <p>Released: @Model.ReleaseDate.ToString("MMMM dd, yyyy")</p>
+        <p class="lead">@Model.Description</p>
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <h4>$@Model.Price</h4>
+            <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                <input type="hidden" name="gameId" value="@Model.GameId" />
+                <div class="d-flex align-items-center">                    
+                    <button type="submit" class="btn btn-success btn-lg">Add to Cart</button>
+                </div>
+            </form>
+        </div>
+        
+        <hr />
+        
+        <h4>Genres</h4>
+        <div class="mb-3">
+            <div class="d-flex align-items-center">
+                <a asp-controller="GameGenreV2" asp-action="Create" asp-route-gameId="@Model.GameId"
+                   class="btn btn-sm btn-primary d-flex justify-content-center align-items-center"
+                   style="width: 20px; height: 20px; font-size: 14px;">+</a>
+
+               <div class="ms-2">
+                    @if (ViewBag.Genres != null && ((IEnumerable<GameGenreV2>)ViewBag.Genres).Any())
+                    {
+                        foreach (var gameGenre in (IEnumerable<GameGenreV2>)ViewBag.Genres)
+                        {
+                            <span class="badge bg-secondary me-1">@gameGenre.genre</span>
+                        }
+                    }
+                    else
+                    {
+                        <span>No genres specified</span>
+                    }
+               </div>
+            </div>
+        </div>
+
+        
+        <hr />
+        
+        <h4>Reviews</h4>
+        @if (Model.Reviews != null && Model.Reviews.Any())
+        {
+            <div class="list-group">
+                @foreach (var review in Model.Reviews)
+                {
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between">
+                            <h5>@review.Rating/5 - @(review.IsRecommended ? "Recommended" : "Not Recommended")</h5>
+                            <small>@review.CreatedDate.ToString("MMM dd, yyyy")</small>
+                        </div>
+                        <p>@review.Comment</p>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p>No reviews yet.</p>
+        }
+    </div>
+</div>

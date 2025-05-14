@@ -1,0 +1,44 @@
+﻿@model IEnumerable<junimo_v3.Models.Game>
+
+@{
+    ViewData["Title"] = "My Games";
+}
+
+<div class="container my-5">
+    <h2 class="text-white mb-4">My Games Library</h2>
+
+    @if (Model.Any())
+    {
+        <div class="game-list">
+            @foreach (var game in Model)
+            {
+                <a asp-action="GameDetails" asp-route-id="@game.GameId" class="text-decoration-none">
+                    <div class="game-list-item">
+                        <img src="@game.ImageUrl" class="game-thumbnail" alt="@game.Title">
+                        <div class="game-info">
+                            <div class="game-title">@game.Title</div>
+                            <div class="game-genres">
+                                @if (game.GameGenresV2 != null && game.GameGenresV2.Any())
+                                {
+                                    @string.Join(" | ", game.GameGenresV2.Select(g => g.genre))
+                                }
+                                else
+                                {
+                                    <span>No genres</span>
+                                }
+                            </div>
+                            <div class="game-price">@(game.Price == 0 ? "Free" : $"${game.Price}")</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center">
+            <p class="text-white">You don't own any games yet.</p>
+            <a asp-controller="Game" asp-action="Index" class="btn btn-primary mt-3">Browse Store</a>
+        </div>
+    }
+</div>

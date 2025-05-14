@@ -1,0 +1,431 @@
+/* Steam-like Dark Theme */
+:root {
+  --steam-bg-dark: #171a21;
+  --steam-bg-medium: #1b2838;
+  --steam-bg-light: #2a3f5a;
+  --steam-highlight: #66c0f4;
+  --steam-text: #c7d5e0;
+  --steam-text-light: #ffffff;
+  --steam-accent: #1a3c5d;
+  --steam-accent-hover: #264b70;
+  --steam-button: #57cbde;
+  --steam-button-hover: #66c0f4;
+}
+
+body {
+  background-color: var(--steam-bg-medium);
+  color: var(--steam-text);
+  margin-bottom: 60px;
+}
+
+/* Navbar styling */
+.navbar {
+  background-color: var(--steam-bg-dark) !important;
+  border-bottom: 1px solid rgba(58, 120, 177, 0.3);
+}
+
+.navbar-brand, .nav-link {
+  color: var(--steam-text) !important;
+}
+
+.nav-link:hover, .navbar-brand:hover {
+  color: var(--steam-highlight) !important;
+}
+
+.nav-link.active {
+  color: var(--steam-button) !important;
+  font-weight: 500;
+}
+
+.dropdown-menu {
+  background-color: var(--steam-bg-dark);
+  border: 1px solid var(--steam-bg-light);
+}
+
+.dropdown-item {
+  color: var(--steam-text);
+}
+
+.dropdown-item:hover {
+  background-color: var(--steam-accent);
+  color: var(--steam-highlight);
+}
+
+/* Cards and content */
+.card {
+  background-color: var(--steam-accent);
+  border: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+  background-color: var(--steam-accent);
+  width: fit-content;
+}
+
+#cart-price-qnt {
+
+}
+
+.card-title {
+    color: var(--steam-text-light);
+}
+
+.card-text {
+  color: var(--steam-text);
+}
+
+/* Game items styling */
+.game-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.game-list-item {
+  display: flex;
+  padding: 10px;
+  transition: all 0.3s ease;
+}
+
+.game-list-item:hover {
+  background-color: var(--steam-accent-hover);
+  transform: translateY(-2px);
+}
+
+/*.game-thumbnail {
+  width: 120px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 3px;
+  margin-right: 15px;
+}*/
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.game-title {
+  font-weight: bold;
+  color: var(--steam-text-light);
+  margin-bottom: 3px;
+}
+
+.game-genres {
+  font-size: 0.8rem;
+  color: var(--steam-text);
+  margin-bottom: 3px;
+}
+
+.game-price {
+  color: var(--steam-button);
+  font-weight: 500;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--steam-button);
+  border-color: var(--steam-button);
+  color: var(--steam-bg-dark);
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background-color: var(--steam-button-hover);
+  border-color: var(--steam-button-hover);
+}
+
+.btn-success {
+  background-color: #5c7e10;
+  border-color: #4c6b0b;
+}
+
+.btn-success:hover {
+  background-color: #6d9413;
+  border-color: #5c7e10;
+}
+
+/* Forms */
+.form-control, .form-select {
+  background-color: var(--steam-bg-light);
+  border: 1px solid var(--steam-accent);
+  color: var(--steam-text);
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--steam-bg-light);
+  color: var(--steam-text-light);
+  box-shadow: 0 0 0 0.25rem rgba(102, 192, 244, 0.25);
+  border-color: var(--steam-highlight);
+}
+
+.form-label {
+  color: var(--steam-text-light);
+}
+
+/* Carousel customization */
+.carousel-control-prev-icon, .carousel-control-next-icon {
+  background-color: rgba(27, 40, 56, 0.7);
+}
+
+/* Footer styling */
+footer {
+    background-color: var(--steam-bg-dark) !important;
+    border-top: 1px solid rgba(58, 120, 177, 0.3);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+ 
+footer div {
+   color: var(--steam-text);
+   text-align: center;
+   padding: 5px;
+}
+
+footer a {
+  color: var(--steam-highlight) !important;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* Remove existing styles that conflict */
+.bg-dark {
+  background-color: var(--steam-accent) !important;
+}
+
+.bg-primary-subtle {
+  background-color: var(--steam-accent) !important;
+}
+
+.bg-danger-subtle {
+  background-color: var(--steam-accent) !important;
+}
+
+.bg-warning-subtle {
+  background-color: var(--steam-bg-light) !important;
+}
+
+/* Profile icon */
+.profile-icon {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--steam-highlight);
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Review section */
+.card-rev {
+  text-align: left;
+  background-color: var(--steam-accent) !important;
+}
+
+h3.text-white {
+  color: var(--steam-text-light) !important;
+}
+
+.text-success {
+  color: #8cc414 !important;
+}
+
+.text-danger {
+  color: #eb5757 !important;
+}
+
+.text-info {
+  color: var(--steam-highlight) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .game-thumbnail {
+    width: 80px;
+    height: 45px;
+  }
+}
+
+.btn {
+    margin-left: 5px;
+    margin-right: 10px;
+}
+
+#btn-browse {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.featured-text {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-left: 10%;
+}
+
+.game-list-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 15px;
+    transition: background-color 0.3s ease;
+    color: white;
+}
+
+.game-list-item img {
+    object-fit: contain;
+    margin-right: 25px;
+    width: 200px;
+    height: 100px;
+}
+
+#carousel-bg {
+    background: #0000002c;
+    border-radius: 30px;
+    padding-bottom: 4%;
+    padding-top: 4%;
+}
+
+.game-cart-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    transition: background-color 0.3s ease;
+    background-color: #00000071;
+    margin-bottom: 20px;
+    .game-title
+{
+    font-size: 2.25rem;
+    font-weight: bold;
+}
+
+}
+
+.game-list-item:hover {
+    background-color: #3b536b7a;
+}
+
+.game-thumbnail {
+    object-fit: cover;
+    margin-right: 20px;
+    width: 200px;
+    height: auto;
+}
+
+.game-info {
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.game-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.game-price {
+    font-size: 1.1rem;
+    color: #48ff00;
+}
+
+.game-genres {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+#gameCarousel .carousel-item img {
+    object-fit: cover;
+    height: 400px;
+    padding-left: 5%;
+}
+
+.game-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    padding: 20px;
+    color: white;
+}
+
+
+    .game-details button {
+        margin-top: auto;
+        width: 75%;
+    }
+
+
+#gameCarousel .carousel-item .game-details h5 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+#gameCarousel .carousel-item .game-details p {
+    font-size: 1rem;
+    margin: 5px 0;
+}
+
+#gameCarousel .carousel-item .col-md-6 {
+    padding: 0;
+}
+
+    #gameCarousel .carousel-item .col-md-6 img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+#gameCarousel .carousel-item .col-md-1 {
+    padding: 0;
+}
+
+#gameCarousel .carousel-control-prev-icon,
+#gameCarousel .carousel-control-next-icon {
+    background-color: #000;
+}
+
+#last-played-header {
+    color: rgb(0, 0, 0);
+    text-align: start;
+}
+
+#profile-details {
+    color: rgb(0, 0, 0);
+    text-align: start;
+    border-bottom: 3px solid rgba(0, 0, 0, 0.295);
+    margin-bottom: 5%;
+    margin-left: 10%;
+    margin-right: 5%;
+    margin-left: 5%;
+    margin-bottom: 5%;
+    padding-bottom: 5%;
+}
+
+#friends-in-game {
+    background: #92ff4f6c;
+}
+
+#friends-online {
+    background: #00749188;
+}
+
+#friends-offline {
+    background: #0000004d;
+}
+
+.card-rev img {
+    width: 40px;
+    height: 40px;
+}

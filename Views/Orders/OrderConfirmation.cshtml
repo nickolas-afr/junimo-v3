@@ -1,0 +1,29 @@
+﻿@* Views/Orders/OrderConfirmation.cshtml *@
+@model junimo_v3.Models.Order
+@{
+    ViewData["Title"] = "Order Confirmation";
+}
+
+<div class="order container my-5">
+    <div class="card mx-auto" style="max-width: 600px;">
+        <div class="card-body text-center">
+            <div class="mb-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+            </div>
+            <h2 class="mb-3">Thank You for Your Order!</h2>
+            <p class="lead">Your order has been placed successfully.</p>
+            <p>Order #@Model.OrderId</p>
+            <p>Total: <strong>$@Model.Total.ToString("F2")</strong></p>
+            <p>Date: @Model.OrderDate.ToString("MMMM dd, yyyy hh:mm tt")</p>
+
+            <hr class="my-4">
+
+            <p>We've sent a confirmation email with order details to your registered email address.</p>
+
+            <div class="mt-4">
+                <a asp-controller="Orders" asp-action="Details" asp-route-id="@Model.OrderId" class="btn btn-primary me-2">View Order Details</a>
+                <a asp-controller="Game" asp-action="Index" class="btn btn-outline-secondary">Continue Shopping</a>
+            </div>
+        </div>
+    </div>
+</div>

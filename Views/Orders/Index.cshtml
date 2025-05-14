@@ -1,0 +1,44 @@
+﻿@* Views/Orders/Index.cshtml *@
+@model IEnumerable<junimo_v3.Models.Order>
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">My Orders</h2>
+
+    @if (Model.Any())
+    {
+        <div class="list-group">
+            @foreach (var order in Model)
+            {
+                <a href="@Url.Action("Details", new { id = order.OrderId })" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Order #@order.OrderId</h5>
+                        <small>@order.OrderDate.ToString("MMM dd, yyyy")</small>
+                    </div>
+                    <p class="mb-1">Total: $@order.Total.ToString("F2")</p>
+                    <span class="badge @(GetStatusBadgeClass(order.Status))">@order.Status</span>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <p>You haven't placed any orders yet.</p>
+            <a asp-controller="Game" asp-action="Index" class="btn btn-primary mt-2">Shop Now</a>
+        </div>
+    }
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(OrderStatus status)
+    {
+        return status switch
+        {
+            OrderStatus.Completed => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+}

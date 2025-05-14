@@ -1,0 +1,181 @@
+.btn {
+    margin-left: 5px;
+    margin-right: 10px;
+ }
+ 
+#btn-browse {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+ 
+ .featured-text {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-left:10%;
+ }
+ .game-list-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 15px;
+    transition: background-color 0.3s ease;
+    color:white;
+}
+
+#carousel-bg {
+    background: #0000002c; 
+    border-radius: 30px; 
+    padding-bottom: 4%;
+    padding-top: 4%;
+}
+
+.game-cart-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    transition: background-color 0.3s ease;
+    background-color: #1b2838b9;
+    .game-info {
+        .game-genres {
+            color: white;
+        }
+        .game-price {
+            color: #48ff00;
+        }
+        display: flex;
+        flex-direction: column;
+        color: white;
+    }
+}
+
+.game-cart-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  transition: background-color 0.3s ease;
+  background-color: #00000071;
+  margin-bottom: 20px;
+  .game-title {
+      font-size: 2.25rem;
+      font-weight: bold;
+  }
+}
+
+.game-list-item:hover {
+    background-color: #3b536b7a;
+}
+.game-thumbnail {
+    object-fit: cover;
+    margin-right: 20px;
+    width: 200px;
+    height: auto;
+}
+.game-info {
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+.game-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+.game-price {
+    font-size: 1.1rem;
+    color: #28a745;
+    margin-top: 10px;
+}
+.game-genres {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+#gameCarousel .carousel-item img {
+    object-fit: cover;  
+    height: 400px; 
+    padding-left: 5%;
+  }
+  
+  .game-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+    padding: 20px;
+    color:white;
+  }
+  
+  
+  .game-details button {
+    margin-top: auto;
+    width: 75%;
+  }
+  
+  
+  #gameCarousel .carousel-item .game-details h5 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  #gameCarousel .carousel-item .game-details p {
+    font-size: 1rem;
+    margin: 5px 0;
+  }
+  
+  #gameCarousel .carousel-item .col-md-6 {
+    padding: 0; 
+  }
+  
+  #gameCarousel .carousel-item .col-md-6 img {
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+  }
+
+  #gameCarousel .carousel-item .col-md-1 {
+    padding: 0;
+  }
+  
+  #gameCarousel .carousel-control-prev-icon,
+  #gameCarousel .carousel-control-next-icon {
+    background-color: #000; 
+  }
+
+  #last-played-header {
+    color: rgb(0, 0, 0);
+    text-align: start;
+  }
+
+  #profile-details {
+    color: rgb(0, 0, 0);
+    text-align: start;
+    border-bottom: 3px solid rgba(0, 0, 0, 0.295);
+    margin-bottom: 5%;
+    margin-left: 10%;
+    margin-right: 5%;
+    margin-left: 5%;
+    margin-bottom: 5%;
+    padding-bottom: 5%;
+  }
+  
+  #friends-in-game {
+    background: #92ff4f6c;
+  }
+
+  #friends-online {
+    background: #00749188;
+  }
+
+  #friends-offline {
+    background: #0000004d;
+  }
+
+.card-rev img {
+    width: 40px;
+    height: 40px;
+}

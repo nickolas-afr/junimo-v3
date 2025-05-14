@@ -1,0 +1,79 @@
+﻿@* Views/Cart/Checkout.cshtml *@
+@model junimo_v3.Models.Order
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4 text-white">Checkout</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="order card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0 text-white">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Game</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>@item.Game.Title</td>
+                                        <td>$@item.Price.ToString("F2")</td>
+                                        <td>@item.Quantity</td>
+                                        <td>$@((item.Price * item.Quantity).ToString("F2"))</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Total:</th>
+                                    <th>$@Model.Total.ToString("F2")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 text-white">Payment Information</h5>
+                </div>
+                <div id="checkout" class="card-body">
+                    <form asp-action="ConfirmCheckout" method="post">
+                        <div class="mb-3">
+                            <label for="cardName" class="form-label">Name on Card</label>
+                            <input type="text" class="form-control" id="cardName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardNumber" class="form-label">Card Number</label>
+                            <input type="text" class="form-control" id="cardNumber" required>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="expDate" class="form-label">Expiration</label>
+                                <input type="text" class="form-control" id="expDate" placeholder="MM/YY" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="cvv" class="form-label">CVV</label>
+                                <input type="text" class="form-control" id="cvv" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

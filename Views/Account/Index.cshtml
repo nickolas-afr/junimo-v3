@@ -1,0 +1,82 @@
+﻿@model junimo_v3.Models.User
+@{
+    ViewData["Title"] = "Account";
+    var defaultProfilePic = "/img/logo.png";
+    var profilePicture = string.IsNullOrEmpty(Model.ProfilePictureURL) ? defaultProfilePic : Model.ProfilePictureURL;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="card bg-primary-subtle shadow-lg">
+                <div class="card-body d-flex align-items-center">
+                    <img src="@profilePicture" class="rounded-circle me-3" alt="Profile Picture" width="150" height="150">
+                    <div>
+                        <h3 class="card-title text-dark">@Model.UserName</h3>
+                        <p class="card-text text-muted">Member since @Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                        <div class="mt-2">
+                            <a asp-controller="Account" asp-action="Edit" class="btn btn-primary btn-sm">Edit Profile</a>
+                            <a asp-controller="Account" asp-action="ChangePassword" class="btn btn-outline-secondary btn-sm">Change Password</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="row text-center">
+                        <div class="col">
+                            <h5 class="text-dark">@ViewBag.FriendsCount</h5>
+                            <a asp-controller="Account" asp-action="Friends" class="text-decoration-none">Friends</a>
+                        </div>
+                        <div class="col">
+                            <h5 class="text-dark">@(Model.Games?.Count() ?? 0)</h5>
+                            <a asp-controller="Game" asp-action="UserGames" class="text-decoration-none">Games</a>
+                        </div>
+                        <div class="col">
+                            <h5 class="text-dark">@(Model.Reviews?.Count() ?? 0)</h5>
+                            <a asp-controller="Review" asp-action="UserReviews" class="text-decoration-none">Reviews</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4 shadow">
+                <div class="card-header bg-dark text-white">
+                    <h4>Last Online Activity</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Last online: @(Model.LastOnlineAt?.ToString("MMMM dd, yyyy hh:mm tt") ?? "Now")</p>
+
+                    @if (ViewBag.LastGame != null)
+                    {
+                        <h5 class="mt-3">Last Game Played</h5>
+                        <div class="game-cart-item mb-2">
+                            <img src="@ViewBag.LastGame.ImageUrl" class="game-thumbnail">
+                            <div class="game-info">
+                                <div class="game-title">@ViewBag.LastGame.Title</div>
+                                <div class="game-genres">
+                                    @{
+                                        var genres = string.Join(" | ", 
+                                            ((IEnumerable<dynamic>)ViewBag.LastGame.GameGenres)?
+                                            .Select(gg => (string)gg.Genre?.Name) ?? Array.Empty<string>());
+                                    }
+                                    @genres
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p>No recently played games.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

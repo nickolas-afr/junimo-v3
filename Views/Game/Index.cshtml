@@ -1,0 +1,47 @@
+﻿@model IEnumerable<junimo_v3.Models.Game>
+
+@{
+    ViewData["Title"] = "Games";
+}
+
+<h1 class="text-white">Games</h1>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <form asp-action="Search" method="get" class="form-inline">
+            <div class="input-group">
+                <input type="text" name="searchTerm" class="form-control" placeholder="Search games..." value="@ViewData["SearchTerm"]" />
+                <div class="input-group-append">
+                    <button id="form-btn" type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="container my-4">
+    <div class="game-list">
+        @foreach (var item in Model)
+        {
+            <a asp-action="GameDetails" asp-route-id="@item.GameId" class="text-decoration-none">
+                <div class="game-list-item">
+                    <img src="@item.ImageUrl" class="game-thumbnail" alt="@item.Title">
+                    <div class="game-info">
+                        <div class="game-title">@item.Title</div>
+                        <div class="game-genres">
+                            @if (item.GameGenresV2 != null && item.GameGenresV2.Any())
+                            {
+                                @string.Join(" | ", item.GameGenresV2.Select(g => g.genre))
+                            }
+                            else
+                            {
+                                <span>No genres</span>
+                            }
+                        </div>
+                        <div class="game-price">@(item.Price == 0 ? "Free" : $"${item.Price}")</div>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+</div>
