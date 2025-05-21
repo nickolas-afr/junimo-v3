@@ -41,10 +41,7 @@ builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("Member", policy => policy.RequireRole("Member"));
-
-    options.AddPolicy("OnlyForUser", policy =>
-            policy.RequireRole("User").RequireAssertion(context => !context.User.IsInRole("Organizer")));
+    options.AddPolicy("User", policy => policy.RequireRole("User"));
 });
     
 var app = builder.Build();

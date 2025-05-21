@@ -65,6 +65,20 @@ public class UserService : IUserService
         return await _userManager.UpdateAsync(user);
     }
 
+    public async Task<IdentityResult> UpdateProfilePictureAsync(string userId, byte[] imageData, string contentType)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+        }
+
+        user.ProfilePicture = imageData;
+        user.ProfilePictureContentType = contentType;
+        
+        return await _userManager.UpdateAsync(user);
+    }
+
     public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
     {
         return await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);

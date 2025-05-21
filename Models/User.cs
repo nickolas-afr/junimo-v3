@@ -7,8 +7,15 @@ namespace junimo_v3.Models
     [Table(name: "User")]
     public class User : IdentityUser
     {
-        [Column("profile_picture_url")]
-        public string? ProfilePictureURL { get; set; }
+        [Column("profile_picture")]
+        public byte[]? ProfilePicture { get; set; }
+
+        [Column("profile_picture_content_type")]
+        public string? ProfilePictureContentType { get; set; }
+
+        [NotMapped] // This will keep the original property but won't be stored in DB
+        public string? ProfilePictureURL => ProfilePicture != null ? 
+            $"data:{ProfilePictureContentType};base64,{Convert.ToBase64String(ProfilePicture)}" : null;
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -15,6 +15,7 @@ namespace junimo_v3.Controllers
         private readonly IUserService _userService;
         private readonly IGameService _gameService;
         private readonly IFriendshipService _friendshipService;
+        private readonly long _maxFileSize = 5 * 1024 * 1024; // 5MB
 
         public AccountController(
             IUserService userService,
@@ -46,7 +47,6 @@ namespace junimo_v3.Controllers
             return View(user);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Edit()
         {
@@ -74,21 +74,30 @@ namespace junimo_v3.Controllers
             // Handle profile image upload if provided
             if (profileImage != null && profileImage.Length > 0)
             {
-                // Create a unique filename
-                var fileName = $"{userId}_{DateTime.Now.Ticks}{Path.GetExtension(profileImage.FileName)}";
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "img", "profiles", fileName);
-
-                // Create directory if it doesn't exist
-                Directory.CreateDirectory(Path.GetDirectoryName(filePath));
-
-                // Save the file
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                // Validate file size
+                if (profileImage.Length > _maxFileSize)
                 {
-                    await profileImage.CopyToAsync(stream);
+                    ModelState.AddModelError("profileImage", "Image size cannot exceed 5MB");
+                    return View(model);
                 }
 
-                // Update the profile picture URL
-                user.ProfilePictureURL = $"/img/profiles/{fileName}";
+                // Validate file type
+                string[] allowedTypes = { "image/jpeg", "image/png", "image/gif", "image/bmp" };
+                if (!allowedTypes.Contains(profileImage.ContentType.ToLower()))
+                {
+                    ModelState.AddModelError("profileImage", "Only image files (JPEG, PNG, GIF, BMP) are allowed");
+                    return View(model);
+                }
+
+                // Read the image file into a byte array
+                using (var memoryStream = new MemoryStream())
+                {
+                    await profileImage.CopyToAsync(memoryStream);
+                    byte[] imageData = memoryStream.ToArray();
+                    
+                    // Update the user's profile picture
+                    await _userService.UpdateProfilePictureAsync(userId, imageData, profileImage.ContentType);
+                }
             }
 
             var result = await _userService.UpdateUserAsync(user);
