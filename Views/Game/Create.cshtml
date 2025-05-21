@@ -11,8 +11,8 @@
         <div class="card-header bg-light">
             <h4 class="mb-0">Game Details</h4>
         </div>
-        <div class="card-body">
-            <form asp-action="Create">
+        <div id="checkout" class="card-body">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="row">
@@ -44,18 +44,21 @@
                         </div>
                         <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
+                </div>
 
+                <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label asp-for="ImageUrl" class="form-label fw-bold"></label>
-                        <input asp-for="ImageUrl" class="form-control" />
-                        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        <label for="gamePicture" class="form-label fw-bold">Game Image</label>
+                        <input type="file" class="form-control" id="gamePicture" name="gamePicture" accept="image/*" />
+                        <div class="form-text">Upload a game image (Max 5MB, supported formats: JPEG, PNG, GIF, BMP)</div>
                     </div>
                 </div>
+                
 
                 <div class="mb-4">
                     <div class="form-check">
                         <input class="form-check-input" asp-for="IsFeatureRecommended" />
-                        <label class="form-check-label" asp-for="IsFeatureRecommended"></label>
+                        <label class="form-check-label" for="IsFeatureRecommended">Is game featured?</label>
                     </div>
                 </div>
 

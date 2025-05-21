@@ -108,6 +108,7 @@ public class UserService : IUserService
         return await _repositoryWrapper.User.FindByCondition(u => u.Id == userId)
             .Include(u => u.Games)
                 .ThenInclude(g => g.GameGenresV2)
+            .Include(u => u.Reviews) // Include the Reviews collection
             .FirstOrDefaultAsync();
     }
 }

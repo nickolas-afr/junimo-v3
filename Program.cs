@@ -32,6 +32,7 @@ builder.Services.AddScoped<IGameGenreV2Service, GameGenreV2Service>();
 builder.Services.AddScoped<IOrderService,       OrderService>();
 builder.Services.AddScoped<IFriendshipService,  FriendshipService>();
 builder.Services.AddScoped<IUserService,        UserService>();
+builder.Services.AddScoped<IReviewService,      ReviewService>();
 
 
 

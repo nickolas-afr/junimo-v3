@@ -49,5 +49,22 @@ namespace junimo_v3.Services
                 .Include(g => g.GameGenresV2)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<bool> UpdateGamePictureAsync(int gameId, byte[] imageData, string contentType)
+        {
+            var game = await _repositoryWrapper.Game
+                .FindByCondition(g => g.GameId == gameId)
+                .FirstOrDefaultAsync();
+
+            if (game == null)
+                return false;
+
+            game.GamePicture = imageData;
+            game.GamePictureContentType = contentType;
+            
+            _repositoryWrapper.Game.Update(game);
+            await _repositoryWrapper.SaveAsync();
+            return true;
+        }
     }
 }

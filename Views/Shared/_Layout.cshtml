@@ -42,10 +42,10 @@
                     <ul class="navbar-nav ms-auto">
                         @if (User.Identity.IsAuthenticated)
                         {
-                            @if (User.IsInRole("Organizer"))
+                            @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="User" asp-action="OrganizerDash">Admin Stuff</a>
+                                    <a class="nav-link text-dark" asp-controller="AdminDashboard" asp-action="Index">Admin Dashboard</a>
                                 </li>
                             }
                             else if (User.IsInRole("User"))

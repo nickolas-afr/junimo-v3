@@ -163,7 +163,7 @@ body {
 }
 
 .form-control, .form-select {
-    background-color: var(--steam-bg-light);
+    background-color: var(--steam-bg-medium);
     border: 1px solid var(--steam-accent);
     color: var(--steam-text);
 }
@@ -186,6 +186,10 @@ body {
 
 .form-label {
     color: var(--steam-text-light);
+}
+
+.form-text {
+    color: aliceblue;
 }
 
 #checkout .form-control {
@@ -287,6 +291,7 @@ body {
 .game-cart-item .game-price {
     font-size: 1.1rem;
     color: #48ff00;
+    margin-right: 10px;
 }
 
 .card {
@@ -322,4 +327,8 @@ footer a {
 
 footer a:hover {
     text-decoration: underline;
+}
+
+.friend-dialog {
+    background-color: var(--steam-bg-medium)
 }

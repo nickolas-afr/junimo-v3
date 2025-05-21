@@ -1,0 +1,55 @@
+@model IEnumerable<junimo_v3.Models.Ticket>
+
+@{
+    ViewData["Title"] = "Manage Support Tickets";
+}
+
+<div class="container my-4">
+    <h1 class="display-4 mb-3">Support Ticket Management</h1>
+    
+    <div class="ticket table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Ticket #</th>
+                    <th>User</th>
+                    <th>Issue Type</th>
+                    <th>Created</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ticket in Model)
+                {
+                    <tr>
+                        <td>@ticket.ticketId</td>
+                        <td>@ticket.User?.UserName</td>
+                        <td>@ticket.issueType</td>
+                        <td>@ticket.createdDate.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <span class="badge @(ticket.status == "Open" ? "bg-warning" :
+                                              ticket.status == "In Progress" ? "bg-info" :
+                                              ticket.status == "Resolved" ? "bg-success" :
+                                              ticket.status == "Closed" ? "bg-danger" : "bg-dark")">
+                                @ticket.status
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-action="AdminTicketDetails" asp-route-id="@ticket.ticketId" class="btn btn-sm btn-primary">Manage</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            There are no support tickets in the system.
+        </div>
+    }
+    
+    <a asp-controller="AdminDashboard" asp-action="Index" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>

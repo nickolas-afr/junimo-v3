@@ -31,8 +31,17 @@ namespace junimo_v3.Models
         public DateOnly ReleaseDate { get; set; }
 
         [Column("image_url")]
-        [Required]
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
+
+        [Column("game_picture")]
+        public byte[]? GamePicture { get; set; }
+
+        [Column("game_picture_content_type")]
+        public string? GamePictureContentType { get; set; }
+
+        [NotMapped] // This property won't be stored in DB
+        public string? GamePictureURL => GamePicture != null ? 
+            $"data:{GamePictureContentType};base64,{Convert.ToBase64String(GamePicture)}" : ImageUrl;
 
         [Column("is_featured")]
         [Required]

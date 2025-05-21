@@ -9,5 +9,9 @@ namespace junimo_v3.Services.Interfaces
         Task<IEnumerable<Ticket>> GetUserTicketsAsync(string userId);
         Task<Ticket> GetUserTicketByIdAsync(string userId, int ticketId);
         Task UpdateTicketAsync(Ticket ticket);
+        
+        // New methods for admin functionality
+        Task<IEnumerable<Ticket>> GetAllTicketsAsync();
+        Task<Ticket> GetTicketByIdAsync(int ticketId);
     }
 }

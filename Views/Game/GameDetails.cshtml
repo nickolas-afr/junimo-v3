@@ -1,13 +1,12 @@
 ﻿@model junimo_v3.Models.Game
 
-
 @{
     ViewData["Title"] = Model.Title;
 }
 
 <div class="row">
     <div class="col-md-4">
-        <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.Title">
+        <img src="@Model.GamePictureURL" class="img-fluid rounded" alt="@Model.Title">
     </div>
     <div class="col-md-8">
         <h1>@Model.Title</h1>
@@ -48,29 +47,87 @@
                </div>
             </div>
         </div>
+    </div>
+</div>
 
-        
-        <hr />
-        
-        <h4>Reviews</h4>
-        @if (Model.Reviews != null && Model.Reviews.Any())
-        {
-            <div class="list-group">
-                @foreach (var review in Model.Reviews)
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>User Reviews</h2>
+            @if (ViewBag.IsLoggedIn && ViewBag.UserOwnsGame)
+            {
+                if (!ViewBag.HasReviewed)
                 {
-                    <div class="list-group-item">
-                        <div class="d-flex justify-content-between">
-                            <h5>@review.Rating/5 - @(review.IsRecommended ? "Recommended" : "Not Recommended")</h5>
-                            <small>@review.CreatedDate.ToString("MMM dd, yyyy")</small>
+                    <a asp-controller="Review" asp-action="Create" asp-route-gameId="@Model.GameId" class="btn btn-primary">
+                        Write a Review
+                    </a>
+                }
+                else
+                {
+                    <div>
+                        <a asp-controller="Review" asp-action="Edit" asp-route-id="@ViewBag.UserReview.ReviewId" class="btn btn-outline-primary me-2">
+                            Edit Your Review
+                        </a>
+                        <form asp-controller="Review" asp-action="Delete" asp-route-id="@ViewBag.UserReview.ReviewId" method="post" class="d-inline"
+                              onsubmit="return confirm('Are you sure you want to delete your review?');">
+                            <button type="submit" class="btn btn-outline-danger">Delete</button>
+                        </form>
+                    </div>
+                }
+            }
+            else if (ViewBag.IsLoggedIn && !ViewBag.UserOwnsGame)
+            {
+                <div class="alert alert-info mb-0">
+                    You need to own this game to leave a review.
+                </div>
+            }
+        </div>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @if (ViewBag.Reviews != null && ((IEnumerable<Review>)ViewBag.Reviews).Any())
+        {
+            <div class="row">
+                @foreach (var review in (IEnumerable<Review>)ViewBag.Reviews)
+                {
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 bg-dark text-white">
+                            <div class="card-header d-flex justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2"
+                                         style="width: 40px; height: 40px; font-size: 18px;">
+                                        @(review.User.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                    </div>
+                                    <h5 class="mb-0">@review.User.UserName</h5>
+                                </div>
+                                <div>
+                                    <span class="badge @(review.IsRecommended ? "bg-success" : "bg-danger")">
+                                        @(review.IsRecommended ? "Recommended" : "Not Recommended")
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div>Rating: <strong>@review.Rating/10</strong></div>
+                                    <div class="text-muted">@review.CreatedDate.ToString("MMM dd, yyyy")</div>
+                                </div>
+                                <p class="card-text">@(review.IsRecommended ? "👍 " : "👎 ")@review.Comment</p>
+                            </div>
                         </div>
-                        <p>@review.Comment</p>
                     </div>
                 }
             </div>
         }
         else
         {
-            <p>No reviews yet.</p>
+            <div class="alert alert-secondary text-center p-5">
+                <h5 class="mb-0">No reviews yet. Be the first to review this game!</h5>
+            </div>
         }
     </div>
 </div>

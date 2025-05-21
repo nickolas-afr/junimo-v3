@@ -1,0 +1,66 @@
+@model junimo_v3.Models.Ticket
+
+@{
+    ViewData["Title"] = "Manage Ticket";
+}
+
+<div class="container my-4">
+    <h1>Ticket #@Model.ticketId</h1>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-white">@Model.issueType</h5>
+            <span class="badge @(Model.status == "Open" ? "bg-warning" :
+                               Model.status == "In Progress" ? "bg-info" :
+                               Model.status == "Resolved" ? "bg-success" :
+                               Model.status == "Closed" ? "bg-danger" : "bg-dark")">
+                @Model.status
+            </span>
+        </div>
+        <div class="card-body">
+            <p><strong>User:</strong> @Model.User?.UserName</p>
+            <p><strong>Created:</strong> @Model.createdDate.ToString("MMMM dd, yyyy")</p>
+            @if (Model.status == "Resolved" || Model.status == "Closed")
+            {
+                <p><strong>Resolved:</strong> @Model.resolvedDate?.ToString("MMMM dd, yyyy")</p>
+            }
+            <hr />
+            <h6>Description:</h6>
+            <p class="card-text">@Model.description</p>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        @if (Model.status != "Resolved")
+        {
+            <form asp-action="AdminTicketDetails" asp-route-id="@Model.ticketId" method="post" class="d-inline me-2">
+                <input type="hidden" name="status" value="Resolved" />
+                <button type="submit" class="btn btn-success" onclick="return confirm('Are you sure you want to mark this ticket as resolved?');">
+                    Mark as Resolved
+                </button>
+            </form>
+        }
+        
+        @if (Model.status != "Closed")
+        {
+            <form asp-action="AdminTicketDetails" asp-route-id="@Model.ticketId" method="post" class="d-inline me-2">
+                <input type="hidden" name="status" value="Closed" />
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to close this ticket?');">
+                    Close Ticket
+                </button>
+            </form>
+        }
+        
+        @if (Model.status != "In Progress" && Model.status != "Resolved" && Model.status != "Closed")
+        {
+            <form asp-action="AdminTicketDetails" asp-route-id="@Model.ticketId" method="post" class="d-inline">
+                <input type="hidden" name="status" value="In Progress" />
+                <button type="submit" class="btn btn-info" onclick="return confirm('Mark this ticket as in progress?');">
+                    Mark as In Progress
+                </button>
+            </form>
+        }
+    </div>
+
+    <a asp-action="AdminTickets" class="btn btn-secondary">Back to Tickets</a>
+</div>

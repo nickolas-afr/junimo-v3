@@ -57,7 +57,7 @@
                     {
                         <h5 class="mt-3">Last Game Played</h5>
                         <div class="game-cart-item mb-2">
-                            <img src="@ViewBag.LastGame.ImageUrl" class="game-thumbnail">
+                            <img src="@(ViewBag.LastGame.GamePictureURL ?? ViewBag.LastGame.ImageUrl)" class="game-thumbnail">
                             <div class="game-info">
                                 <div class="game-title">@ViewBag.LastGame.Title</div>
                                 <div class="game-genres">

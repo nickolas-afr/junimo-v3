@@ -10,6 +10,7 @@ namespace junimo_v3.Controllers
     {
         private readonly IUserService _userService;
         private readonly IGameService _gameService;
+        private const string AdminPassword = "Admin123@";
 
         public HomeController(IUserService userService, IGameService gameService)
         {
@@ -60,15 +61,26 @@ namespace junimo_v3.Controllers
 
         [HttpPost]
         [Route("/register")]
-        public async Task<IActionResult> SignUp(User user, string? Role)
+        public async Task<IActionResult> SignUp(User user, string? Role, string? AdminPassword)
         {
             if (!ModelState.IsValid) return View(user);
             var roles = new List<string> { "User" };
 
             if (!string.IsNullOrEmpty(Role))
             {
-                roles.Add("Organizer");
+                // Admin role was requested, verify the admin password
+                if (string.IsNullOrEmpty(AdminPassword) || AdminPassword != HomeController.AdminPassword)
+                {
+                    // Invalid admin password
+                    ModelState.AddModelError("", "Invalid admin password.");
+                    ViewData["AdminPasswordError"] = "The admin password is incorrect.";
+                    return View(user);
+                }
+
+                // Admin password is correct, add the Admin role
+                roles.Add("Admin");
             }
+
             var result = await _userService.Register(user, user.PasswordHash, roles);
 
             if (result.Succeeded)

@@ -13,23 +13,66 @@ namespace junimo_v3.Controllers
         private readonly IGameService _gameService;
         private readonly IGameGenreV2Service _gameGenreV2Service;
         private readonly IUserService _userService;
+        private readonly IReviewService _reviewService;
 
-        public GameController(IGameService gameService, IGameGenreV2Service gameGenreV2Service, IUserService userService)
+        public GameController(
+            IGameService gameService, 
+            IGameGenreV2Service gameGenreV2Service, 
+            IUserService userService,
+            IReviewService reviewService)
         {
             _gameService = gameService;
             _gameGenreV2Service = gameGenreV2Service;
             _userService = userService;
+            _reviewService = reviewService;  // Initialize the review service
         }
 
         [HttpGet("/game/create")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
         [HttpPost("/game/create")]
-        public async Task<IActionResult> Create(Game game)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create(Game game, IFormFile gamePicture)
         {
+            if (!ModelState.IsValid)
+            {
+                return View(game);
+            }
+
+            // Handle game picture upload if provided
+            if (gamePicture != null && gamePicture.Length > 0)
+            {
+                // Define max file size (5MB)
+                long maxFileSize = 5 * 1024 * 1024;
+
+                // Validate file size
+                if (gamePicture.Length > maxFileSize)
+                {
+                    ModelState.AddModelError("gamePicture", "Image size cannot exceed 5MB");
+                    return View(game);
+                }
+
+                // Validate file type
+                string[] allowedTypes = { "image/jpeg", "image/png", "image/gif", "image/bmp" };
+                if (!allowedTypes.Contains(gamePicture.ContentType.ToLower()))
+                {
+                    ModelState.AddModelError("gamePicture", "Only image files (JPEG, PNG, GIF, BMP) are allowed");
+                    return View(game);
+                }
+
+                // Read the image file into a byte array
+                using (var memoryStream = new MemoryStream())
+                {
+                    await gamePicture.CopyToAsync(memoryStream);
+                    game.GamePicture = memoryStream.ToArray();
+                    game.GamePictureContentType = gamePicture.ContentType;
+                }
+            }
+            
             await _gameService.CreateGame(game);
             return RedirectToAction("Index", "Home");
         }
@@ -67,6 +110,34 @@ namespace junimo_v3.Controllers
 
             // Pass the genres to the view using ViewBag
             ViewBag.Genres = genres;
+
+            // Check if user is logged in
+            var isLoggedIn = User.Identity.IsAuthenticated;
+            ViewBag.IsLoggedIn = isLoggedIn;
+
+            if (isLoggedIn)
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                
+                // Check if user owns the game
+                var user = await _userService.GetUserWithGamesAsync(userId);
+                var userOwnsGame = user?.Games?.Any(g => g.GameId == id) ?? false;
+                ViewBag.UserOwnsGame = userOwnsGame;
+                
+                // Check if user has already reviewed the game
+                var userReview = await _reviewService.GetUserReviewForGameAsync(userId, id);
+                ViewBag.UserReview = userReview;
+                ViewBag.HasReviewed = userReview != null;
+            }
+            else
+            {
+                ViewBag.UserOwnsGame = false;
+                ViewBag.HasReviewed = false;
+            }
+
+            // Get reviews for the game
+            var reviews = await _reviewService.GetReviewsByGameIdAsync(id);
+            ViewBag.Reviews = reviews;
 
             return View(game);
         }
