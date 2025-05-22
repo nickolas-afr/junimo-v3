@@ -66,5 +66,10 @@ namespace junimo_v3.Services
             await _repositoryWrapper.SaveAsync();
             return true;
         }
+
+        public async Task<Game> GetGameByIdAsync(int id)
+        {
+            return await _repositoryWrapper.Game.GetByIdAsync(id);
+        }
     }
 }

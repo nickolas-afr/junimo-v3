@@ -1,24 +1,26 @@
 ﻿// Controllers/GameGenreV2Controller.cs
 using junimo_v3.Models;
-using junimo_v3.Repositories.Interfaces;
+using junimo_v3.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace junimo_v3.Controllers
 {
     public class GameGenreV2Controller : Controller
     {
-        private readonly IRepositoryWrapper _repository;
+        private readonly IGameGenreV2Service _gameGenreService;
+        private readonly IGameService _gameService;
 
-        public GameGenreV2Controller(IRepositoryWrapper repository)
+        public GameGenreV2Controller(IGameGenreV2Service gameGenreService, IGameService gameService)
         {
-            _repository = repository;
+            _gameGenreService = gameGenreService;
+            _gameService = gameService;
         }
 
         [HttpGet]
-        public IActionResult Create(int gameId)
+        public async Task<IActionResult> Create(int gameId)
         {
             // Verify the game exists
-            var game = _repository.Game.GetByIdAsync(gameId).Result;
+            var game = await _gameService.GetGameByIdAsync(gameId);
             if (game == null)
             {
                 return NotFound();
@@ -35,13 +37,18 @@ namespace junimo_v3.Controllers
             if (string.IsNullOrWhiteSpace(genre))
             {
                 ModelState.AddModelError("genre", "Genre cannot be empty");
+
+                // Get game title for the view
+                var game = await _gameService.GetGameByIdAsync(gameId);
                 ViewBag.GameId = gameId;
+                ViewBag.GameTitle = game?.Title;
+
                 return View();
             }
 
             // Get the game
-            var game = await _repository.Game.GetByIdAsync(gameId);
-            if (game == null)
+            var gameEntity = await _gameService.GetGameByIdAsync(gameId);
+            if (gameEntity == null)
             {
                 return NotFound();
             }
@@ -51,12 +58,11 @@ namespace junimo_v3.Controllers
             {
                 GameId = gameId,
                 genre = genre,
-                Game = game  // Set the navigation property
+                Game = gameEntity  // Set the navigation property
             };
 
-            // Add it to the repository
-            _repository.GameGenreV2.Create(gameGenre);
-            await _repository.SaveAsync();
+            // Add it using the service
+            await _gameGenreService.AddGenreToGameAsync(gameGenre);
 
             return RedirectToAction("GameDetails", "Game", new { id = gameId });
         }
