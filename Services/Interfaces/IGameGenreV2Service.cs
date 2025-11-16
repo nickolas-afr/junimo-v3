@@ -8,5 +8,6 @@ namespace junimo_v3.Services.Interfaces
         Task<IEnumerable<GameGenreV2>> GetGenresByGameIdAsync(int gameId);
         Task AddGenreToGameAsync(GameGenreV2 gameGenre);
         Task RemoveGenreFromGameAsync(int gameId, string genre);
+        Task<IEnumerable<string>> GetAllDistinctGenresAsync();
     }
 }

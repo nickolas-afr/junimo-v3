@@ -304,6 +304,11 @@ body {
     color: var(--steam-text-light)
 }
 
+.card-header {
+    background-color: var(--steam-bg-dark);
+    color: var(--steam-text-light)
+}
+
 
 
 footer {

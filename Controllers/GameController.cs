@@ -77,10 +77,108 @@ namespace junimo_v3.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        [HttpGet("/games")]
-        public async Task<IActionResult> Index()
+        [HttpGet("/game/edit/{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id)
         {
-            var games = await _gameService.GetAllGames();
+            var game = await _gameService.GetGameById(id);
+            if (game == null)
+            {
+                return NotFound();
+            }
+            return View(game);
+        }
+
+        [HttpPost("/game/edit/{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, Game game, IFormFile? gamePicture)
+        {
+            if (id != game.GameId)
+            {
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(game);
+            }
+
+            // Handle game picture upload if provided
+            if (gamePicture != null && gamePicture.Length > 0)
+            {
+                // Define max file size (5MB)
+                long maxFileSize = 5 * 1024 * 1024;
+
+                // Validate file size
+                if (gamePicture.Length > maxFileSize)
+                {
+                    ModelState.AddModelError("gamePicture", "Image size cannot exceed 5MB");
+                    return View(game);
+                }
+
+                // Validate file type
+                string[] allowedTypes = { "image/jpeg", "image/png", "image/gif", "image/bmp" };
+                if (!allowedTypes.Contains(gamePicture.ContentType.ToLower()))
+                {
+                    ModelState.AddModelError("gamePicture", "Only image files (JPEG, PNG, GIF, BMP) are allowed");
+                    return View(game);
+                }
+
+                // Read the image file into a byte array
+                using (var memoryStream = new MemoryStream())
+                {
+                    await gamePicture.CopyToAsync(memoryStream);
+                    game.GamePicture = memoryStream.ToArray();
+                    game.GamePictureContentType = gamePicture.ContentType;
+                }
+            }
+
+            var success = await _gameService.UpdateGame(game);
+            if (!success)
+            {
+                return NotFound();
+            }
+
+            TempData["SuccessMessage"] = "Game updated successfully!";
+            return RedirectToAction("ManageGames", "AdminDashboard");
+        }
+
+        [HttpPost("/game/delete/{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var success = await _gameService.DeleteGame(id);
+            if (!success)
+            {
+                TempData["ErrorMessage"] = "Game not found or could not be deleted.";
+            }
+            else
+            {
+                TempData["SuccessMessage"] = "Game deleted successfully!";
+            }
+
+            return RedirectToAction("ManageGames", "AdminDashboard");
+        }
+
+        [HttpGet("/games")]
+        public async Task<IActionResult> Index(List<string> genres)
+        {
+            IEnumerable<Game> games;
+            
+            if (genres != null && genres.Any())
+            {
+                games = await _gameService.GetGamesByGenresAsync(genres);
+                ViewData["SelectedGenres"] = genres;
+            }
+            else
+            {
+                games = await _gameService.GetAllGames();
+            }
+
+            // Get all available genres for the filter dropdown
+            var allGenres = await _gameGenreV2Service.GetAllDistinctGenresAsync();
+            ViewBag.AllGenres = allGenres;
+
             return View(games);
         }
 
@@ -93,6 +191,11 @@ namespace junimo_v3.Controllers
 
             var games = await _gameService.SearchGamesAsync(searchTerm);
             ViewData["SearchTerm"] = searchTerm;
+            
+            // Get all available genres for the filter dropdown
+            var allGenres = await _gameGenreV2Service.GetAllDistinctGenresAsync();
+            ViewBag.AllGenres = allGenres;
+            
             return View("Index", games);
         }
 

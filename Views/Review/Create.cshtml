@@ -8,7 +8,7 @@
     <h1 class="display-4 mb-3">Write a Review for @ViewData["GameTitle"]</h1>
 
     <div class="card shadow">
-        <div class="card-header bg-light">
+        <div class="card-header">
             <h4 class="mb-0">Your Review</h4>
         </div>
         <div class="card-body">
@@ -34,7 +34,7 @@
                 <div class="mb-4">
                     <label asp-for="Comment" class="form-label fw-bold">Your Review</label>
                     <textarea asp-for="Comment" class="form-control" rows="5" placeholder="Share your thoughts about this game..."></textarea>
-                    <small class="text-muted">Maximum 1000 characters</small>
+                    <small class="text-white">Maximum 1000 characters</small>
                     <span asp-validation-for="Comment" class="text-danger d-block"></span>
                 </div>
 
@@ -45,7 +45,7 @@
                             I recommend this game
                         </label>
                     </div>
-                    <small class="text-muted">This will display a recommendation badge on your review</small>
+                    <small class="text-white">This will display a recommendation badge on your review</small>
                 </div>
 
                 <div class="d-flex gap-2">

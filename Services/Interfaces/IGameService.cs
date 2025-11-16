@@ -12,5 +12,9 @@ namespace junimo_v3.Services.Interfaces
         Task<Game> GetGameByIdAsync(int id);
         Task<IEnumerable<Game>> SearchGamesAsync(string searchTerm);
         Task<bool> UpdateGamePictureAsync(int gameId, byte[] imageData, string contentType);
+        Task<bool> UpdateGame(Game game);
+        Task<bool> DeleteGame(int id);
+        Task<IEnumerable<Game>> GetGamesByGenreAsync(string genre);
+        Task<IEnumerable<Game>> GetGamesByGenresAsync(List<string> genres);
     }
 }

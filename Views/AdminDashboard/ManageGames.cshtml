@@ -1,0 +1,150 @@
+@model IEnumerable<junimo_v3.Models.Game>
+
+@{
+    ViewData["Title"] = "Manage Games";
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4">Manage Games</h1>
+        <a class="btn btn-success" asp-controller="Game" asp-action="Create">
+            <i class="bi bi-plus-circle"></i> Create New Game
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h4 class="mb-0">All Games</h4>
+        </div>
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Price</th>
+                                <th>Release Date</th>
+                                <th>Featured</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var game in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(game.GamePictureURL))
+                                        {
+                                            <img src="@game.GamePictureURL" alt="@game.Title" class="img-thumbnail" style="width: 80px; height: 80px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                                <i class="bi bi-image fs-4"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <strong>@game.Title</strong>
+                                        <br />
+                                        <small class="text-muted">@(game.Description.Length > 50 ? game.Description.Substring(0, 50) + "..." : game.Description)</small>
+                                    </td>
+                                    <td>
+                                        <strong>$@game.Price.ToString("F2")</strong>
+                                    </td>
+                                    <td>@game.ReleaseDate.ToString("MMM dd, yyyy")</td>
+                                    <td>
+                                        @if (game.IsFeatureRecommended)
+                                        {
+                                            <span class="badge bg-primary">
+                                                <i class="bi bi-star-fill"></i> Featured
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Not Featured</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a asp-controller="Game" asp-action="GameDetails" asp-route-id="@game.GameId" 
+                                               class="btn btn-sm btn-outline-info" title="View Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-controller="Game" asp-action="Edit" asp-route-id="@game.GameId" 
+                                               class="btn btn-sm btn-outline-primary" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal@(game.GameId)" 
+                                                    title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal@(game.GameId)" tabindex="-1" aria-labelledby="deleteModalLabel@(game.GameId)" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="deleteModalLabel@(game.GameId)">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to delete <strong>@game.Title</strong>? This action cannot be undone.
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form asp-controller="Game" asp-action="Delete" asp-route-id="@game.GameId" method="post" style="display: inline;">
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox fs-1 text-muted"></i>
+                    <p class="text-muted mt-3">No games found. Create your first game to get started!</p>
+                    <a class="btn btn-primary" asp-controller="Game" asp-action="Create">
+                        <i class="bi bi-plus-circle"></i> Create New Game
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-controller="AdminDashboard" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+</div>

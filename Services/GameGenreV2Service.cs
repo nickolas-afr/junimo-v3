@@ -40,5 +40,15 @@ namespace junimo_v3.Services
                 await _repositoryWrapper.SaveAsync();
             }
         }
+
+        public async Task<IEnumerable<string>> GetAllDistinctGenresAsync()
+        {
+            return await _repositoryWrapper.GameGenreV2
+                .FindAll()
+                .Select(gg => gg.genre)
+                .Distinct()
+                .OrderBy(g => g)
+                .ToListAsync();
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Games";
+    var selectedGenres = ViewData["SelectedGenres"] as List<string> ?? new List<string>();
 }
 
 <h1 class="text-white">Games</h1>
@@ -17,31 +18,102 @@
             </div>
         </form>
     </div>
+    <div class="col-md-6">
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="genreFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-funnel"></i> Filter by Genres @(selectedGenres.Any() ? $"({selectedGenres.Count})" : "")
+            </button>
+            <div class="dropdown-menu p-3" aria-labelledby="genreFilterDropdown" style="min-width: 250px;">
+                <form asp-action="Index" method="get" id="genreFilterForm">
+                    @if (ViewBag.AllGenres != null)
+                    {
+                        @foreach (var genreOption in ViewBag.AllGenres)
+                        {
+                            <div class="form-check text-white">
+                                <input class="form-check-input genre-checkbox" 
+                                       type="checkbox" 
+                                       name="genres" 
+                                       value="@genreOption" 
+                                       id="genre_@genreOption.Replace(" ", "_")"
+                                       @(selectedGenres.Contains(genreOption) ? "checked" : "")>
+                                <label class="form-check-label" for="genre_@genreOption.Replace(" ", "_")">
+                                    @genreOption
+                                </label>
+                            </div>
+                        }
+                    }
+                    <hr />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-primary flex-fill">
+                            <i class="bi bi-check2"></i> Apply
+                        </button>
+                        <a asp-action="Index" class="btn btn-sm btn-outline-secondary flex-fill">
+                            <i class="bi bi-x"></i> Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+@if (selectedGenres.Any())
+{
+    <div class="alert alert-info d-flex align-items-center justify-content-between">
+        <div>
+            <i class="bi bi-filter"></i> Filtered by genres: 
+            @foreach (var genre in selectedGenres)
+            {
+                <span class="badge bg-primary me-1">@genre</span>
+            }
+        </div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-x-circle"></i> Clear All
+        </a>
+    </div>
+}
 
 <div class="container my-4">
     <div class="game-list">
-        @foreach (var item in Model)
+        @if (Model != null && Model.Any())
         {
-            <a asp-action="GameDetails" asp-route-id="@item.GameId" class="text-decoration-none">
-                <div class="game-list-item">
-                    <img src="@item.GamePictureURL" class="game-thumbnail" alt="@item.Title">
-                    <div class="game-info">
-                        <div class="game-title">@item.Title</div>
-                        <div class="game-genres">
-                            @if (item.GameGenresV2 != null && item.GameGenresV2.Any())
-                            {
-                                @string.Join(" | ", item.GameGenresV2.Select(g => g.genre))
-                            }
-                            else
-                            {
-                                <span>No genres</span>
-                            }
+            @foreach (var item in Model)
+            {
+                <a asp-action="GameDetails" asp-route-id="@item.GameId" class="text-decoration-none">
+                    <div class="game-list-item">
+                        <img src="@item.GamePictureURL" class="game-thumbnail" alt="@item.Title">
+                        <div class="game-info">
+                            <div class="game-title">@item.Title</div>
+                            <div class="game-genres">
+                                @if (item.GameGenresV2 != null && item.GameGenresV2.Any())
+                                {
+                                    @(string.Join(" | ", item.GameGenresV2.Select(g => g.genre)))
+                                }
+                                else
+                                {
+                                    <span>No genres</span>
+                                }
+                            </div>
+                            <div class="game-price">@(item.Price == 0 ? "Free" : $"${item.Price}")</div>
                         </div>
-                        <div class="game-price">@(item.Price == 0 ? "Free" : $"${item.Price}")</div>
                     </div>
-                </div>
-            </a>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="alert alert-warning text-center">
+                <i class="bi bi-search"></i> No games found matching your criteria.
+            </div>
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Prevent dropdown from closing when clicking inside
+        document.querySelector('.dropdown-menu').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+}

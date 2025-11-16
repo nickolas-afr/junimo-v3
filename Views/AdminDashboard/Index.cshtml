@@ -5,17 +5,20 @@
 <div class="container my-4">
     <h1 class="display-4 mb-3">Admin Dashboard</h1>
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
+        <div class="card-header">
             <h4 class="mb-0">Game Management</h4>
         </div>
         <div class="card-body">
-            <a class="btn btn-primary" asp-controller="Game" asp-action="Create">
+            <a class="btn btn-primary me-2" asp-controller="Game" asp-action="Create">
                 <i class="bi bi-plus-circle"></i> Create New Game
+            </a>
+            <a class="btn btn-success" asp-controller="AdminDashboard" asp-action="ManageGames">
+                <i class="bi bi-grid-3x3-gap"></i> Manage All Games
             </a>
         </div>
     </div>
     <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
+        <div class="card-header">
             <h4 class="mb-0">Support Ticket Management</h4>
         </div>
         <div class="card-body">
