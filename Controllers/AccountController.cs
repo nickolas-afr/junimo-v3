@@ -1,31 +1,19 @@
 ﻿// Controllers/AccountController.cs
 using junimo_v3.Models;
-using junimo_v3.Services;
 using junimo_v3.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Protocol.Core.Types;
 using System.Security.Claims;
 
 namespace junimo_v3.Controllers
 {
     [Authorize]
-    public class AccountController : Controller
+    public class AccountController(
+        IUserService userService,
+        IFriendshipService friendshipService)
+        : Controller
     {
-        private readonly IUserService _userService;
-        private readonly IGameService _gameService;
-        private readonly IFriendshipService _friendshipService;
         private readonly long _maxFileSize = 5 * 1024 * 1024; // 5MB
-
-        public AccountController(
-            IUserService userService,
-            IGameService gameService,
-            IFriendshipService friendshipService)
-        {
-            _userService = userService;
-            _gameService = gameService;
-            _friendshipService = friendshipService;
-        }
 
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -35,8 +23,8 @@ namespace junimo_v3.Controllers
                 return RedirectToAction("Login", "Home");
 
             // Get user with games and other related data included
-            var user = await _userService.GetUserWithGamesAsync(userId);
-            var friends = await _friendshipService.GetFriendsAsync(userId);
+            var user = await userService.GetUserWithGamesAsync(userId);
+            var friends = await friendshipService.GetFriendsAsync(userId);
 
             // Get user's last played game (assuming first game in collection is most recent)
             var lastGame = user.Games?.OrderByDescending(g => g.GameId).FirstOrDefault();
@@ -54,7 +42,7 @@ namespace junimo_v3.Controllers
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Home");
 
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await userService.GetUserByIdAsync(userId);
             return View(user);
         }
 
@@ -65,14 +53,14 @@ namespace junimo_v3.Controllers
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Home");
 
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await userService.GetUserByIdAsync(userId);
 
             // Update user fields that are editable
             user.UserName = model.UserName;
             user.Email = model.Email;
 
             // Handle profile image upload if provided
-            if (profileImage != null && profileImage.Length > 0)
+            if (profileImage.Length > 0)
             {
                 // Validate file size
                 if (profileImage.Length > _maxFileSize)
@@ -82,7 +70,7 @@ namespace junimo_v3.Controllers
                 }
 
                 // Validate file type
-                string[] allowedTypes = { "image/jpeg", "image/png", "image/gif", "image/bmp" };
+                string[] allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/bmp"];
                 if (!allowedTypes.Contains(profileImage.ContentType.ToLower()))
                 {
                     ModelState.AddModelError("profileImage", "Only image files (JPEG, PNG, GIF, BMP) are allowed");
@@ -90,17 +78,15 @@ namespace junimo_v3.Controllers
                 }
 
                 // Read the image file into a byte array
-                using (var memoryStream = new MemoryStream())
-                {
-                    await profileImage.CopyToAsync(memoryStream);
-                    byte[] imageData = memoryStream.ToArray();
+                using var memoryStream = new MemoryStream();
+                await profileImage.CopyToAsync(memoryStream);
+                byte[] imageData = memoryStream.ToArray();
                     
-                    // Update the user's profile picture
-                    await _userService.UpdateProfilePictureAsync(userId, imageData, profileImage.ContentType);
-                }
+                // Update the user's profile picture
+                await userService.UpdateProfilePictureAsync(userId, imageData, profileImage.ContentType);
             }
 
-            var result = await _userService.UpdateUserAsync(user);
+            var result = await userService.UpdateUserAsync(user);
 
             if (result.Succeeded)
             {
@@ -128,11 +114,9 @@ namespace junimo_v3.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = await _userService.GetCurrentUserAsync(User);
-            if (user == null)
-                return RedirectToAction("Login", "Home");
-
-            var result = await _userService.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
+            var user = await userService.GetCurrentUserAsync(User);
+            
+            var result = await userService.ChangePasswordAsync(user, model.CurrentPassword, model.NewPassword);
 
             if (result.Succeeded)
             {
@@ -155,8 +139,8 @@ namespace junimo_v3.Controllers
             if (string.IsNullOrEmpty(userId))
                 return RedirectToAction("Login", "Home");
 
-            var friends = await _friendshipService.GetFriendsAsync(userId);
-            var pendingRequests = await _friendshipService.GetPendingFriendRequestsAsync(userId);
+            var friends = await friendshipService.GetFriendsAsync(userId);
+            var pendingRequests = await friendshipService.GetPendingFriendRequestsAsync(userId);
 
             ViewBag.PendingRequests = pendingRequests;
 
