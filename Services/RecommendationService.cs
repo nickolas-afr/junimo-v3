@@ -11,6 +11,10 @@ namespace junimo_v3.Services
     {
         private readonly IRepositoryWrapper _repositoryWrapper;
         private readonly MLContext _mlContext;
+        
+        // ML training configuration constants
+        private const int MatrixFactorizationIterations = 20;
+        private const int MatrixFactorizationApproximationRank = 100;
 
         public RecommendationService(IRepositoryWrapper repositoryWrapper)
         {
@@ -71,9 +75,14 @@ namespace junimo_v3.Services
                 // Get recommended games based on predicted genre scores
                 return await GetGamesFromPredictedGenresAsync(predictedGenreScores, ownedGameIds, maxRecommendations);
             }
-            catch
+            catch (InvalidOperationException)
             {
-                // If ML training fails, fall back to genre-based recommendations
+                // If ML training fails due to invalid data, fall back to genre-based recommendations
+                return await GetGenreBasedRecommendationsAsync(userId, userGenrePreferences, ownedGameIds, maxRecommendations);
+            }
+            catch (ArgumentException)
+            {
+                // If ML training fails due to invalid arguments, fall back to genre-based recommendations
                 return await GetGenreBasedRecommendationsAsync(userId, userGenrePreferences, ownedGameIds, maxRecommendations);
             }
         }
@@ -126,8 +135,8 @@ namespace junimo_v3.Services
                     labelColumnName: nameof(GameRating.Rating),
                     matrixColumnIndexColumnName: "userIdEncoded",
                     matrixRowIndexColumnName: "genreEncoded",
-                    numberOfIterations: 20,
-                    approximationRank: 100));
+                    numberOfIterations: MatrixFactorizationIterations,
+                    approximationRank: MatrixFactorizationApproximationRank));
 
             var model = pipeline.Fit(dataView);
             var predictionEngine = _mlContext.Model.CreatePredictionEngine<GameRating, GameRatingPrediction>(model);
