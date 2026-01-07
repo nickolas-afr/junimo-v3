@@ -14,17 +14,20 @@ namespace junimo_v3.Controllers
         private readonly IGameGenreV2Service _gameGenreV2Service;
         private readonly IUserService _userService;
         private readonly IReviewService _reviewService;
+        private readonly IRecommendationService _recommendationService;
 
         public GameController(
             IGameService gameService, 
             IGameGenreV2Service gameGenreV2Service, 
             IUserService userService,
-            IReviewService reviewService)
+            IReviewService reviewService,
+            IRecommendationService recommendationService)
         {
             _gameService = gameService;
             _gameGenreV2Service = gameGenreV2Service;
             _userService = userService;
-            _reviewService = reviewService;  // Initialize the review service
+            _reviewService = reviewService;
+            _recommendationService = recommendationService;
         }
 
         [HttpGet("/game/create")]
@@ -260,6 +263,19 @@ namespace junimo_v3.Controllers
                 return View(new List<Game>());
 
             return View(user.Games);
+        }
+
+        [HttpGet("/games/recommendations")]
+        [Authorize]
+        public async Task<IActionResult> Recommendations()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+                return RedirectToAction("Login", "Account");
+
+            var recommendedGames = await _recommendationService.GetRecommendationsAsync(userId);
+
+            return View(recommendedGames);
         }
 
     }

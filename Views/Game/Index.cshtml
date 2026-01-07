@@ -18,7 +18,7 @@
             </div>
         </form>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="dropdown">
             <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" id="genreFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-funnel"></i> Filter by Genres @(selectedGenres.Any() ? $"({selectedGenres.Count})" : "")
@@ -55,6 +55,14 @@
             </div>
         </div>
     </div>
+    @if (User.Identity != null && User.Identity.IsAuthenticated)
+    {
+        <div class="col-md-2">
+            <a asp-action="Recommendations" class="btn btn-success w-100">
+                <i class="bi bi-stars"></i> View Recommendations
+            </a>
+        </div>
+    }
 </div>
 
 @if (selectedGenres.Any())

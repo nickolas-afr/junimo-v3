@@ -1,0 +1,53 @@
+@model IEnumerable<junimo_v3.Models.Game>
+
+@{
+    ViewData["Title"] = "Recommended Games";
+}
+
+<h1 class="text-white">Recommended For You</h1>
+
+<div class="mb-3">
+    <a asp-action="Index" class="btn btn-outline-primary">
+        <i class="bi bi-arrow-left"></i> Back to All Games
+    </a>
+</div>
+
+<div class="alert alert-info">
+    <i class="bi bi-lightbulb"></i> These recommendations are based on your order history and game preferences.
+</div>
+
+<div class="container my-4">
+    <div class="game-list">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <a asp-action="GameDetails" asp-route-id="@item.GameId" class="text-decoration-none">
+                    <div class="game-list-item">
+                        <img src="@item.GamePictureURL" class="game-thumbnail" alt="@item.Title">
+                        <div class="game-info">
+                            <div class="game-title">@item.Title</div>
+                            <div class="game-genres">
+                                @if (item.GameGenresV2 != null && item.GameGenresV2.Any())
+                                {
+                                    @(string.Join(" | ", item.GameGenresV2.Select(g => g.genre)))
+                                }
+                                else
+                                {
+                                    <span>No genres</span>
+                                }
+                            </div>
+                            <div class="game-price">@(item.Price == 0 ? "Free" : $"${item.Price}")</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="alert alert-warning text-center">
+                <i class="bi bi-search"></i> No recommendations found. Start purchasing games to get personalized recommendations!
+            </div>
+        }
+    </div>
+</div>

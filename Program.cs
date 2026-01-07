@@ -33,6 +33,7 @@ builder.Services.AddScoped<IOrderService,       OrderService>();
 builder.Services.AddScoped<IFriendshipService,  FriendshipService>();
 builder.Services.AddScoped<IUserService,        UserService>();
 builder.Services.AddScoped<IReviewService,      ReviewService>();
+builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 
 
 
