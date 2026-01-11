@@ -1,0 +1,95 @@
+@model IEnumerable<junimo_v3.Models.Game>
+
+@{
+    ViewData["Title"] = "Recommended For You";
+    var isModelReady = ViewBag.IsModelReady ?? false;
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="text-white">
+                <i class="bi bi-stars"></i> Recommended For You
+            </h1>
+            <p class="text-muted">
+                Personalized game recommendations based on your preferences
+            </p>
+        </div>
+        @if (!isModelReady)
+        {
+            <span class="badge bg-warning text-dark">
+                <i class="bi bi-info-circle"></i> Building your profile...
+            </span>
+        }
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var game in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 recommendation-card">
+                        <a asp-controller="Game" asp-action="GameDetails" asp-route-id="@game.GameId" class="text-decoration-none">
+                            <img src="@game.GamePictureURL" class="card-img-top" alt="@game.Title" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title text-white">@game.Title</h5>
+                                <p class="card-text text-muted">
+                                    @if (game.GameGenresV2 != null && game.GameGenresV2.Any())
+                                    {
+                                        @foreach (var genre in game.GameGenresV2.Take(3))
+                                        {
+                                            <span class="badge bg-secondary me-1">@genre.genre</span>
+                                        }
+                                    }
+                                </p>
+                                <p class="card-text text-truncate" style="color: #aaa;">
+                                    @game.Description
+                                </p>
+                            </div>
+                            <div class="card-footer d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold">
+                                    @(game.Price == 0 ? "Free" : $"€{game.Price:F2}")
+                                </span>
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-lightning"></i> Recommended
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i> 
+            No recommendations available yet. 
+            <a href="/games">Browse games</a> and leave some reviews to get personalized recommendations!
+        </div>
+    }
+</div>
+
+<style>
+    .recommendation-card {
+        background-color: #2a2a3e;
+        border: 1px solid #3a3a5e;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .recommendation-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        border-color: #5a5a8e;
+    }
+    
+    .recommendation-card .card-img-top {
+        border-bottom: 1px solid #3a3a5e;
+    }
+    
+    .recommendation-card .card-footer {
+        background-color: #252538;
+        border-top: 1px solid #3a3a5e;
+    }
+</style>

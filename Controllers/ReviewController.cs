@@ -11,12 +11,18 @@ namespace junimo_v3.Controllers
         private readonly IReviewService _reviewService;
         private readonly IGameService _gameService;
         private readonly IUserService _userService;
+        private readonly IRecommendationService _recommendationService;
 
-        public ReviewController(IReviewService reviewService, IGameService gameService, IUserService userService)
+        public ReviewController(
+            IReviewService reviewService, 
+            IGameService gameService, 
+            IUserService userService,
+            IRecommendationService recommendationService)
         {
             _reviewService = reviewService;
             _gameService = gameService;
             _userService = userService;
+            _recommendationService = recommendationService;
         }
 
         [Authorize]
@@ -87,6 +93,9 @@ namespace junimo_v3.Controllers
             
             await _reviewService.CreateReviewAsync(review);
             
+            // Add rating to recommendation model for incremental learning
+            await _recommendationService.AddRatingAsync(userId, review.GameId, review.Rating, retrain: false);
+            
             return RedirectToAction("GameDetails", "Game", new { id = review.GameId });
         }
 
@@ -135,6 +144,9 @@ namespace junimo_v3.Controllers
             existingReview.IsRecommended = review.IsRecommended;
             
             await _reviewService.UpdateReviewAsync(existingReview);
+            
+            // Update rating in recommendation model for incremental learning
+            await _recommendationService.AddRatingAsync(userId, review.GameId, review.Rating, retrain: false);
             
             return RedirectToAction("GameDetails", "Game", new { id = review.GameId });
         }

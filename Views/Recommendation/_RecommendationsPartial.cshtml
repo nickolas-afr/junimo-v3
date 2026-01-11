@@ -1,0 +1,42 @@
+@model IEnumerable<junimo_v3.Models.Game>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3">
+        @foreach (var game in Model)
+        {
+            <div class="col">
+                <a asp-controller="Game" asp-action="GameDetails" asp-route-id="@game.GameId" class="text-decoration-none">
+                    <div class="card h-100 recommendation-card-small">
+                        <img src="@game.GamePictureURL" class="card-img-top" alt="@game.Title" style="height: 120px; object-fit: cover;">
+                        <div class="card-body p-2">
+                            <h6 class="card-title text-white text-truncate mb-1">@game.Title</h6>
+                            <small class="text-success">
+                                @(game.Price == 0 ? "Free" : $"€{game.Price:F2}")
+                            </small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-muted text-center">
+        <small>Browse and review games to get personalized recommendations!</small>
+    </p>
+}
+
+<style>
+    .recommendation-card-small {
+        background-color: #2a2a3e;
+        border: 1px solid #3a3a5e;
+        transition: transform 0.2s;
+    }
+    
+    .recommendation-card-small:hover {
+        transform: translateY(-3px);
+        border-color: #5a5a8e;
+    }
+</style>
