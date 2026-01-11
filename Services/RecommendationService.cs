@@ -24,6 +24,11 @@ namespace junimo_v3.Services
         private readonly object _lock = new();
         private List<GameRating> _trainingData = new();
 
+        /// <summary>
+        /// Minimum number of training records required to train the model.
+        /// </summary>
+        private const int MinimumTrainingRecords = 5;
+
         public bool IsModelReady => _model != null;
 
         public RecommendationService(
@@ -75,11 +80,14 @@ namespace junimo_v3.Services
 
         private void InitializeWithSampleData()
         {
-            // Sample training data for demo purposes
-            // This simulates user ratings to bootstrap the model
+            // Sample training data for demo purposes.
+            // This bootstraps the model with synthetic ratings from sample users.
+            // The GameId values are placeholder IDs that may not exist in the database.
+            // As real users add reviews, the model will learn from actual data.
+            // When games with these IDs don't exist, the model will simply not recommend them.
             _trainingData = new List<GameRating>
             {
-                // Sample users rating various games (GameId values will be actual game IDs)
+                // Sample users rating various games (synthetic data for initial model training)
                 new GameRating { UserId = "sample-user-1", GameId = 1, Label = 0.9f },
                 new GameRating { UserId = "sample-user-1", GameId = 2, Label = 0.8f },
                 new GameRating { UserId = "sample-user-1", GameId = 3, Label = 0.7f },
@@ -151,13 +159,13 @@ namespace junimo_v3.Services
             {
                 try
                 {
-                    if (_trainingData.Count < 5)
+                    if (_trainingData.Count < MinimumTrainingRecords)
                     {
-                        _logger.LogWarning("Not enough training data to train the model ({Count} records)", _trainingData.Count);
+                        _logger.LogWarning("Not enough training data to train the model ({Count} records, minimum {Minimum} required)", _trainingData.Count, MinimumTrainingRecords);
                         return;
                     }
 
-                    _logger.LogInformation("Training recommendation model with {Count} records", _trainingData.Count);
+                    _logger.LogInformation("Training recommendation model with {Count} records", _trainingData.Count);;
 
                     var dataView = _mlContext.Data.LoadFromEnumerable(_trainingData);
 
