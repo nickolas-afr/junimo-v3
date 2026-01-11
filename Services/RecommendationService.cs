@@ -11,6 +11,9 @@ namespace junimo_v3.Services
     {
         private readonly IRepositoryWrapper _repositoryWrapper;
         private readonly MLContext _mlContext;
+        private readonly string _modelPath;
+        private ITransformer? _trainedModel;
+        private static readonly object _modelLock = new object();
         
         // ML training configuration constants
         private const int MatrixFactorizationIterations = 20;
@@ -20,6 +23,199 @@ namespace junimo_v3.Services
         {
             _repositoryWrapper = repositoryWrapper;
             _mlContext = new MLContext(seed: 0);
+            _modelPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ML", "recommendation_model.zip");
+            
+            // Ensure the ML directory exists
+            var mlDirectory = Path.GetDirectoryName(_modelPath);
+            if (!string.IsNullOrEmpty(mlDirectory) && !Directory.Exists(mlDirectory))
+            {
+                Directory.CreateDirectory(mlDirectory);
+            }
+
+            // Try to load an existing model
+            LoadModelIfExists();
+        }
+
+        private void LoadModelIfExists()
+        {
+            if (File.Exists(_modelPath))
+            {
+                try
+                {
+                    lock (_modelLock)
+                    {
+                        _trainedModel = _mlContext.Model.Load(_modelPath, out _);
+                    }
+                }
+                catch (FormatException)
+                {
+                    // Model file is corrupted or in wrong format
+                    _trainedModel = null;
+                }
+                catch (IOException)
+                {
+                    // File access issue
+                    _trainedModel = null;
+                }
+                catch (InvalidOperationException)
+                {
+                    // Model loading operation failed
+                    _trainedModel = null;
+                }
+            }
+        }
+
+        public bool IsModelTrained()
+        {
+            // Check if model is loaded in memory first
+            if (_trainedModel != null)
+            {
+                return true;
+            }
+            
+            // Only check file if model is not in memory, and try to load it
+            if (File.Exists(_modelPath))
+            {
+                LoadModelIfExists();
+                return _trainedModel != null;
+            }
+            
+            return false;
+        }
+
+        public async Task<bool> TrainAndSaveModelAsync(bool useDemoData = false)
+        {
+            try
+            {
+                List<GameRating> trainingData;
+                
+                if (useDemoData)
+                {
+                    trainingData = await BuildDemoTrainingDataAsync();
+                }
+                else
+                {
+                    trainingData = await BuildTrainingDataAsync();
+                }
+
+                if (trainingData.Count < 2)
+                {
+                    // Not enough data, use demo data as fallback
+                    trainingData = await BuildDemoTrainingDataAsync();
+                }
+
+                if (trainingData.Count < 2)
+                {
+                    return false;
+                }
+
+                var dataView = _mlContext.Data.LoadFromEnumerable(trainingData);
+
+                var pipeline = _mlContext.Transforms.Conversion.MapValueToKey("userIdEncoded", nameof(GameRating.UserId))
+                    .Append(_mlContext.Transforms.Conversion.MapValueToKey("genreEncoded", nameof(GameRating.Genre)))
+                    .Append(_mlContext.Recommendation().Trainers.MatrixFactorization(
+                        labelColumnName: nameof(GameRating.Rating),
+                        matrixColumnIndexColumnName: "userIdEncoded",
+                        matrixRowIndexColumnName: "genreEncoded",
+                        numberOfIterations: MatrixFactorizationIterations,
+                        approximationRank: MatrixFactorizationApproximationRank));
+
+                lock (_modelLock)
+                {
+                    _trainedModel = pipeline.Fit(dataView);
+                    _mlContext.Model.Save(_trainedModel, dataView.Schema, _modelPath);
+                }
+
+                return true;
+            }
+            catch (InvalidOperationException)
+            {
+                // ML.NET training operation failed
+                return false;
+            }
+            catch (ArgumentException)
+            {
+                // Invalid training data or parameters
+                return false;
+            }
+            catch (IOException)
+            {
+                // Failed to save model to disk
+                return false;
+            }
+        }
+
+        private async Task<List<GameRating>> BuildDemoTrainingDataAsync()
+        {
+            // Get all available genres from the database
+            var allGames = await _repositoryWrapper.Game
+                .FindAll()
+                .Include(g => g.GameGenresV2)
+                .ToListAsync();
+
+            var allGenres = allGames
+                .Where(g => g.GameGenresV2 != null)
+                .SelectMany(g => g.GameGenresV2!)
+                .Select(gg => gg.genre)
+                .Distinct()
+                .ToList();
+
+            if (!allGenres.Any())
+            {
+                // Fallback demo genres if no games exist
+                allGenres = new List<string>
+                {
+                    "Action", "Adventure", "RPG", "Strategy", "Simulation",
+                    "Sports", "Puzzle", "Horror", "Racing", "Fighting"
+                };
+            }
+
+            // Create demo user preference patterns
+            var demoData = new List<GameRating>();
+            var demoUsers = new[]
+            {
+                ("demo_action_fan", new[] { ("Action", 5f), ("Adventure", 3f), ("RPG", 2f), ("Fighting", 4f) }),
+                ("demo_rpg_fan", new[] { ("RPG", 5f), ("Adventure", 4f), ("Strategy", 3f), ("Action", 2f) }),
+                ("demo_strategy_fan", new[] { ("Strategy", 5f), ("Simulation", 4f), ("Puzzle", 3f), ("RPG", 2f) }),
+                ("demo_casual_fan", new[] { ("Puzzle", 5f), ("Simulation", 4f), ("Sports", 3f), ("Racing", 2f) }),
+                ("demo_horror_fan", new[] { ("Horror", 5f), ("Adventure", 4f), ("Action", 3f), ("Puzzle", 2f) }),
+                ("demo_sports_fan", new[] { ("Sports", 5f), ("Racing", 4f), ("Fighting", 3f), ("Simulation", 2f) }),
+                ("demo_adventure_fan", new[] { ("Adventure", 5f), ("RPG", 4f), ("Action", 3f), ("Puzzle", 2f) }),
+                ("demo_simulation_fan", new[] { ("Simulation", 5f), ("Strategy", 4f), ("Puzzle", 3f), ("Sports", 2f) })
+            };
+
+            foreach (var (userId, preferences) in demoUsers)
+            {
+                foreach (var (genre, rating) in preferences)
+                {
+                    // Only add if the genre exists in our actual game data
+                    if (allGenres.Contains(genre))
+                    {
+                        demoData.Add(new GameRating
+                        {
+                            UserId = userId,
+                            Genre = genre,
+                            Rating = rating
+                        });
+                    }
+                }
+            }
+
+            // Also add some ratings for all genres to ensure coverage
+            foreach (var genre in allGenres)
+            {
+                if (!demoData.Any(d => d.Genre == genre))
+                {
+                    demoData.Add(new GameRating
+                    {
+                        UserId = "demo_general_user",
+                        Genre = genre,
+                        Rating = 1f
+                    });
+                }
+            }
+
+            return demoData;
         }
 
         public async Task<IEnumerable<Game>> GetRecommendationsAsync(string userId, int maxRecommendations = 10)
@@ -39,12 +235,6 @@ namespace junimo_v3.Services
                 .Distinct()
                 .ToHashSet();
 
-            // If user has no order history, return featured games they don't own
-            if (!userOrders.Any() || !ownedGameIds.Any())
-            {
-                return await GetFallbackRecommendationsAsync(ownedGameIds, maxRecommendations);
-            }
-
             // Extract genres from user's purchased games and count occurrences
             var userGenrePreferences = userOrders
                 .SelectMany(o => o.OrderItems ?? Enumerable.Empty<OrderItems>())
@@ -53,9 +243,45 @@ namespace junimo_v3.Services
                 .GroupBy(gg => gg.genre)
                 .ToDictionary(g => g.Key, g => (float)g.Count());
 
+            // If user has no order history but we have a pre-trained model, use it with all available genres
             if (!userGenrePreferences.Any())
             {
+                if (_trainedModel != null)
+                {
+                    var allGenres = await GetAllGenresAsync();
+                    if (allGenres.Any())
+                    {
+                        try
+                        {
+                            var predictedGenreScores = PredictWithModel(userId, allGenres);
+                            var results = await GetGamesFromPredictedGenresAsync(predictedGenreScores, ownedGameIds, maxRecommendations);
+                            if (results.Any())
+                            {
+                                return results;
+                            }
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            // Model prediction failed, fall through to fallback
+                        }
+                    }
+                }
                 return await GetFallbackRecommendationsAsync(ownedGameIds, maxRecommendations);
+            }
+
+            // Try to use the pre-trained model first
+            if (_trainedModel != null)
+            {
+                try
+                {
+                    var allGenres = await GetAllGenresAsync();
+                    var predictedGenreScores = PredictWithModel(userId, allGenres);
+                    return await GetGamesFromPredictedGenresAsync(predictedGenreScores, ownedGameIds, maxRecommendations);
+                }
+                catch (InvalidOperationException)
+                {
+                    // Model prediction failed, fall through to training on-demand
+                }
             }
 
             // Build training data from all users' order history
@@ -85,6 +311,45 @@ namespace junimo_v3.Services
                 // If ML training fails due to invalid arguments, fall back to genre-based recommendations
                 return await GetGenreBasedRecommendationsAsync(userId, userGenrePreferences, ownedGameIds, maxRecommendations);
             }
+        }
+
+        private async Task<List<string>> GetAllGenresAsync()
+        {
+            var allGames = await _repositoryWrapper.Game
+                .FindAll()
+                .Include(g => g.GameGenresV2)
+                .ToListAsync();
+
+            return allGames
+                .Where(g => g.GameGenresV2 != null)
+                .SelectMany(g => g.GameGenresV2!)
+                .Select(gg => gg.genre)
+                .Distinct()
+                .ToList();
+        }
+
+        private Dictionary<string, float> PredictWithModel(string userId, IEnumerable<string> genres)
+        {
+            if (_trainedModel == null)
+            {
+                throw new InvalidOperationException("Model is not trained");
+            }
+
+            var predictionEngine = _mlContext.Model.CreatePredictionEngine<GameRating, GameRatingPrediction>(_trainedModel);
+
+            var predictions = new Dictionary<string, float>();
+            foreach (var genre in genres)
+            {
+                var prediction = predictionEngine.Predict(new GameRating
+                {
+                    UserId = userId,
+                    Genre = genre,
+                    Rating = 0
+                });
+                predictions[genre] = prediction.Score;
+            }
+
+            return predictions;
         }
 
         private async Task<List<GameRating>> BuildTrainingDataAsync()

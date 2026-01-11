@@ -80,6 +80,13 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole(role));
         }
     }
+
+    // Pre-train the recommendation model with demo data for demo purposes
+    var recommendationService = scope.ServiceProvider.GetRequiredService<IRecommendationService>();
+    if (!recommendationService.IsModelTrained())
+    {
+        await recommendationService.TrainAndSaveModelAsync(useDemoData: true);
+    }
 }
 
 
