@@ -1,7 +1,7 @@
-# ML.NET Game Recommendation System
+# Game Recommendation System
 
 ## Overview
-This project implements a game recommendation system using ML.NET that provides personalized game recommendations based on a user's purchase history and game genres.
+This project implements a game recommendation system that provides personalized game recommendations based on a user's purchase history and game genres. The system uses ML.NET infrastructure but implements a custom genre-based preference scoring algorithm.
 
 ## How It Works
 
