@@ -4,6 +4,104 @@
     ViewData["Title"] = Model.Title;
 }
 
+<style>
+    @@media print {
+        /* Hide global layout elements */
+        header, footer { 
+            display: none !important; 
+        }
+        
+        /* Hide interactive elements and buttons */
+        .btn, button, form, .alert, .no-print {
+            display: none !important;
+        }
+
+        /* Reset colors for printing */
+        body, .card, .bg-dark, .text-white, .badge {
+            background-color: white !important;
+            color: black !important;
+            box-shadow: none !important;
+        }
+        
+        /* Add borders to cards for separation since bg is gone */
+        .card {
+            border: 1px solid #000 !important;
+            margin-bottom: 20px !important;
+        }
+        
+        /* Adjust badge appearance */
+        .badge {
+            border: 1px solid #000 !important;
+            padding: 5px !important;
+        }
+        
+        /* Ensure image fits */
+        img {
+            max-width: 100% !important;
+        }
+        
+        /* Review layout adjustments */
+        .col-md-6 {
+            width: 100% !important; /* Stack reviews vertically */
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+    }
+    
+    /* PDF Export Mode - applied via JS during export for html2pdf */
+    .pdf-mode {
+        background-color: white !important;
+        color: black !important;
+        /* Using a system font stack to prevent spacing/overlap issues in html2canvas */
+        font-family: Arial, Helvetica, sans-serif !important; 
+        line-height: 1.5 !important;
+        text-align: left !important;
+    }
+    
+    .pdf-mode h1, .pdf-mode h2, .pdf-mode h3, .pdf-mode h4, .pdf-mode p, .pdf-mode div, .pdf-mode span {
+         color: black !important;
+         text-shadow: none !important;
+    }
+
+    .pdf-mode .btn, 
+    .pdf-mode button,
+    .pdf-mode form,
+    .pdf-mode .alert {
+        display: none !important;
+    }
+
+    /* Transform dark cards to printable borders */
+    .pdf-mode .card {
+        background-color: white !important;
+        border: 1px solid #333 !important;
+        color: black !important;
+        box-shadow: none !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .pdf-mode .card-header, .pdf-mode .card-body {
+        background-color: white !important;
+        color: black !important;
+    }
+    
+    .pdf-mode .badge {
+        background-color: white !important;
+        border: 1px solid #333 !important;
+        color: black !important;
+    }
+    
+    .pdf-mode img {
+        box-shadow: none !important;
+    }
+    
+    /* Force simple layout for reviews */
+    .pdf-mode .col-md-6 {
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+</style>
+
+<div id="pdf-content">
 <div class="row">
     <div class="col-md-4">
         <img src="@Model.GamePictureURL" class="img-fluid rounded" alt="@Model.Title">
@@ -15,12 +113,15 @@
         
         <div class="d-flex justify-content-between align-items-center">
             <h4>$@Model.Price</h4>
-            <form asp-controller="Cart" asp-action="AddToCart" method="post">
-                <input type="hidden" name="gameId" value="@Model.GameId" />
-                <div class="d-flex align-items-center">                    
+            <div class="d-flex align-items-center">
+                <form asp-controller="Cart" asp-action="AddToCart" method="post" class="me-2">
+                    <input type="hidden" name="gameId" value="@Model.GameId" />
                     <button type="submit" class="btn btn-success btn-lg">Add to Cart</button>
-                </div>
-            </form>
+                </form>
+                <button id="download-pdf-btn" class="btn btn-outline-danger btn-lg no-print" data-html2canvas-ignore="true">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF
+                </button>
+            </div>
         </div>
         
         <hr />
@@ -131,3 +232,34 @@
         }
     </div>
 </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        document.getElementById('download-pdf-btn').addEventListener('click', function () {
+            const element = document.getElementById('pdf-content');
+            
+            // Apply PDF-specific styles to mimic the print layout
+            element.classList.add('pdf-mode');
+
+            const opt = {
+                margin:       0.5,
+                filename:     '@(Model.Title)_Details.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save()
+                .then(function() {
+                    // Revert styles
+                    element.classList.remove('pdf-mode');
+                })
+                .catch(function(err) {
+                    console.error(err);
+                    element.classList.remove('pdf-mode');
+                });
+        });
+    </script>
+}
