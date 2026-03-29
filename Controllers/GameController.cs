@@ -14,17 +14,20 @@ namespace junimo_v3.Controllers
         private readonly IGameGenreV2Service _gameGenreV2Service;
         private readonly IUserService _userService;
         private readonly IReviewService _reviewService;
+        private readonly ISimilarGamesService _similarGamesService;
 
         public GameController(
             IGameService gameService, 
             IGameGenreV2Service gameGenreV2Service, 
             IUserService userService,
-            IReviewService reviewService)
+            IReviewService reviewService,
+            ISimilarGamesService similarGamesService)
         {
             _gameService = gameService;
             _gameGenreV2Service = gameGenreV2Service;
             _userService = userService;
-            _reviewService = reviewService;  // Initialize the review service
+            _reviewService = reviewService;
+            _similarGamesService = similarGamesService;
         }
 
         [HttpGet("/game/create")]
@@ -241,6 +244,10 @@ namespace junimo_v3.Controllers
             // Get reviews for the game
             var reviews = await _reviewService.GetReviewsByGameIdAsync(id);
             ViewBag.Reviews = reviews;
+
+            // Compute text-similarity based similar games (TF-IDF + cosine)
+            var similarGames = await _similarGamesService.GetSimilarGamesAsync(id, topN: 4);
+            ViewBag.SimilarGames = similarGames;
 
             return View(game);
         }

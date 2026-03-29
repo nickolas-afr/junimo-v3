@@ -41,6 +41,8 @@ builder.Services.AddScoped<IFriendshipService,  FriendshipService>();
 builder.Services.AddScoped<IUserService,        UserService>();
 builder.Services.AddScoped<IReviewService,      ReviewService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
+builder.Services.AddScoped<ISearchService,          SearchService>();
+builder.Services.AddScoped<ISimilarGamesService,    SimilarGamesService>();
 
 
 

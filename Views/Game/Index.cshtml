@@ -9,14 +9,19 @@
 
 <div class="row mb-3">
     <div class="col-md-6">
-        <form asp-action="Search" method="get" class="form-inline">
-            <div class="input-group">
-                <input type="text" name="searchTerm" class="form-control" placeholder="Search games..." value="@ViewData["SearchTerm"]" />
-                <div class="input-group-append">
-                    <button id="form-btn" type="submit" class="btn btn-primary">Search</button>
+        <div class="search-wrapper">
+            <form id="search-form" asp-action="Search" method="get" class="form-inline">
+                <div class="input-group">
+                    <input type="text" id="search-input" name="searchTerm" class="form-control"
+                           placeholder="Search games..." value="@ViewData["SearchTerm"]"
+                           autocomplete="off" aria-autocomplete="list" aria-controls="autocomplete-dropdown" />
+                    <div class="input-group-append">
+                        <button id="form-btn" type="submit" class="btn btn-primary">Search</button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+            <div id="autocomplete-dropdown" class="autocomplete-dropdown" role="listbox" aria-label="Search suggestions"></div>
+        </div>
     </div>
     <div class="col-md-6">
         <div class="dropdown">
@@ -110,10 +115,181 @@
 </div>
 
 @section Scripts {
+    <style>
+        .search-wrapper {
+            position: relative;
+        }
+
+        .autocomplete-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ced4da;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            z-index: 1050;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .autocomplete-item {
+            padding: 9px 14px;
+            cursor: pointer;
+            color: #212529;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.is-active {
+            background-color: #f0f4ff;
+            color: #0d6efd;
+        }
+
+        .autocomplete-item strong {
+            font-weight: 700;
+        }
+    </style>
+
     <script>
-        // Prevent dropdown from closing when clicking inside
-        document.querySelector('.dropdown-menu').addEventListener('click', function(e) {
+        // Prevent genre-filter dropdown from closing on internal clicks
+        document.querySelector('.dropdown-menu').addEventListener('click', function (e) {
             e.stopPropagation();
         });
+
+        (function () {
+            const input = document.getElementById('search-input');
+            const dropdown = document.getElementById('autocomplete-dropdown');
+            const form = document.getElementById('search-form');
+
+            if (!input || !dropdown || !form) return;
+
+            let debounceTimer;
+            let activeIndex = -1;
+            let currentSuggestions = [];
+
+            // ── Fetch suggestions from the server ────────────────────────────
+            async function fetchSuggestions(query) {
+                try {
+                    const res = await fetch(
+                        '/api/search/suggestions?q=' + encodeURIComponent(query) + '&limit=8'
+                    );
+                    if (!res.ok) { hideDropdown(); return; }
+                    currentSuggestions = await res.json();
+                    renderDropdown(query);
+                } catch {
+                    hideDropdown();
+                }
+            }
+
+            // ── Render the dropdown list ──────────────────────────────────────
+            function renderDropdown(query) {
+                if (!currentSuggestions.length) { hideDropdown(); return; }
+
+                dropdown.innerHTML = '';
+                activeIndex = -1;
+
+                currentSuggestions.forEach(function (title, i) {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.setAttribute('role', 'option');
+                    item.innerHTML = highlightMatch(title, query);
+
+                    item.addEventListener('mousedown', function (e) {
+                        // Prevent the input's blur from firing before click
+                        e.preventDefault();
+                        input.value = title;
+                        hideDropdown();
+                        form.submit();
+                    });
+
+                    dropdown.appendChild(item);
+                });
+
+                dropdown.style.display = 'block';
+            }
+
+            // ── Highlight the matching portion of the suggestion ──────────────
+            function highlightMatch(title, query) {
+                const idx = title.toLowerCase().indexOf(query.toLowerCase());
+                if (idx === -1) return escapeHtml(title);
+                return (
+                    escapeHtml(title.slice(0, idx)) +
+                    '<strong>' + escapeHtml(title.slice(idx, idx + query.length)) + '</strong>' +
+                    escapeHtml(title.slice(idx + query.length))
+                );
+            }
+
+            function escapeHtml(str) {
+                return str
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            function hideDropdown() {
+                dropdown.style.display = 'none';
+                activeIndex = -1;
+            }
+
+            // ── Update the visually-active item ──────────────────────────────
+            function setActive(items, index) {
+                items.forEach(function (el, i) {
+                    el.classList.toggle('is-active', i === index);
+                });
+            }
+
+            // ── Input events ─────────────────────────────────────────────────
+            input.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 2) { hideDropdown(); return; }
+
+                // 200 ms debounce to avoid hammering the server on every keystroke
+                debounceTimer = setTimeout(function () {
+                    fetchSuggestions(query);
+                }, 200);
+            });
+
+            // ── Keyboard navigation ───────────────────────────────────────────
+            input.addEventListener('keydown', function (e) {
+                const items = dropdown.querySelectorAll('.autocomplete-item');
+                if (!items.length || dropdown.style.display === 'none') return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+                    setActive(items, activeIndex);
+                    input.value = currentSuggestions[activeIndex];
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = Math.max(activeIndex - 1, -1);
+                    setActive(items, activeIndex);
+                    if (activeIndex >= 0) input.value = currentSuggestions[activeIndex];
+                } else if (e.key === 'Enter' && activeIndex >= 0) {
+                    e.preventDefault();
+                    input.value = currentSuggestions[activeIndex];
+                    hideDropdown();
+                    form.submit();
+                } else if (e.key === 'Escape') {
+                    hideDropdown();
+                }
+            });
+
+            // Close when the input loses focus (small delay lets mousedown fire first)
+            input.addEventListener('blur', function () {
+                setTimeout(hideDropdown, 150);
+            });
+        })();
     </script>
 }

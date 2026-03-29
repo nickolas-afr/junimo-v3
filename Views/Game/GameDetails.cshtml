@@ -151,6 +151,41 @@
     </div>
 </div>
 
+@if (ViewBag.SimilarGames != null && ((IEnumerable<junimo_v3.Models.GameRecommendation>)ViewBag.SimilarGames).Any())
+{
+    <div class="row mt-5 no-print">
+        <div class="col-12">
+            <h2 class="mb-4">Similar Games</h2>
+            <div class="row row-cols-2 row-cols-md-4 g-3">
+                @foreach (var rec in (IEnumerable<junimo_v3.Models.GameRecommendation>)ViewBag.SimilarGames)
+                {
+                    <div class="col">
+                        <a asp-controller="Game" asp-action="GameDetails" asp-route-id="@rec.GameId" class="text-decoration-none">
+                            <div class="card h-100 bg-dark text-white border-secondary">
+                                <img src="@rec.ImageUrl" class="card-img-top"
+                                     alt="@rec.GameTitle"
+                                     style="height: 140px; object-fit: cover;" />
+                                <div class="card-body p-2">
+                                    <h6 class="card-title mb-1 text-truncate" title="@rec.GameTitle">@rec.GameTitle</h6>
+                                    <div class="mb-1">
+                                        @foreach (var genre in rec.Genres.Take(2))
+                                        {
+                                            <span class="badge bg-secondary me-1" style="font-size: 0.7rem;">@genre</span>
+                                        }
+                                    </div>
+                                    <p class="card-text fw-bold mb-0 text-success">
+                                        @(rec.Price == 0 ? "Free" : $"${rec.Price:F2}")
+                                    </p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
 <div class="row mt-5">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-3">
