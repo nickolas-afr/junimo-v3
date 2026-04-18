@@ -2,6 +2,9 @@
 @model DocumentSearchResultPage
 @{
     ViewData["Title"] = "Advanced Document Search";
+    var encodedQuery = Uri.EscapeDataString(Model.Query ?? string.Empty);
+    var previousPageUrl = $"/documents/search?q={encodedQuery}&sort={Model.Sort}&page={Model.Page - 1}&pageSize={Model.PageSize}";
+    var nextPageUrl = $"/documents/search?q={encodedQuery}&sort={Model.Sort}&page={Model.Page + 1}&pageSize={Model.PageSize}";
 }
 
 <div class="container my-4">
@@ -63,13 +66,13 @@
                 <nav aria-label="search result pages">
                     <ul class="pagination">
                         <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
-                            <a class="page-link" asp-controller="DocumentSearch" asp-action="Index" asp-route-q="@Model.Query" asp-route-sort="@Model.Sort" asp-route-page="@(Model.Page - 1)" asp-route-pageSize="@Model.PageSize">Previous</a>
+                            <a class="page-link" href="@previousPageUrl">Previous</a>
                         </li>
                         <li class="page-item disabled">
                             <span class="page-link">Page @Model.Page of @Model.TotalPages</span>
                         </li>
                         <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
-                            <a class="page-link" asp-controller="DocumentSearch" asp-action="Index" asp-route-q="@Model.Query" asp-route-sort="@Model.Sort" asp-route-page="@(Model.Page + 1)" asp-route-pageSize="@Model.PageSize">Next</a>
+                            <a class="page-link" href="@nextPageUrl">Next</a>
                         </li>
                     </ul>
                 </nav>

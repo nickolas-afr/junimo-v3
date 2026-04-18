@@ -2,7 +2,7 @@ using junimo_v3.Models;
 using junimo_v3.Models.DocumentSearch;
 using junimo_v3.Repositories.Interfaces;
 using junimo_v3.Services.Interfaces;
-using Lucene.Net.Analysis;
+using System.Text.RegularExpressions;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
@@ -22,7 +22,7 @@ namespace junimo_v3.Services
 
         private readonly IRepositoryWrapper _repository;
         private readonly string _indexPath;
-        private readonly Analyzer _analyzer;
+        private readonly StandardAnalyzer _analyzer;
         private readonly object _sync = new();
 
         public LuceneDocumentSearchService(IRepositoryWrapper repository, IWebHostEnvironment environment)
@@ -202,7 +202,7 @@ namespace junimo_v3.Services
 
         private FSDirectory OpenDirectory()
         {
-            Directory.CreateDirectory(_indexPath);
+            System.IO.Directory.CreateDirectory(_indexPath);
             return FSDirectory.Open(new DirectoryInfo(_indexPath));
         }
 
@@ -217,6 +217,7 @@ namespace junimo_v3.Services
 
             string content = string.Join(" ",
             [
+                // Title repeated to intentionally boost title-term relevance in BM25 scoring.
                 title,
                 title,
                 description,
@@ -231,9 +232,7 @@ namespace junimo_v3.Services
                 new TextField("description", description, Field.Store.YES),
                 new TextField("genres", genres, Field.Store.YES),
                 new TextField("reviews", reviews, Field.Store.YES),
-                new TextField("content", content, Field.Store.YES),
-                new StringField("releaseDate", game.ReleaseDate.ToString("yyyy-MM-dd"), Field.Store.YES),
-                new StoredField("price", game.Price)
+                new TextField("content", content, Field.Store.YES)
             };
         }
 
@@ -246,7 +245,7 @@ namespace junimo_v3.Services
 
             const int radius = 110;
             string text = content.Trim();
-            int index = text.IndexOf(query, StringComparison.OrdinalIgnoreCase);
+            int index = FindBestSnippetStartIndex(text, query);
 
             if (index < 0)
             {
@@ -268,6 +267,40 @@ namespace junimo_v3.Services
             }
 
             return snippet;
+        }
+
+        private static int FindBestSnippetStartIndex(string text, string query)
+        {
+            var queryTerms = ExtractQueryTerms(query);
+            int? bestIndex = null;
+
+            foreach (var term in queryTerms)
+            {
+                int termIndex = text.IndexOf(term, StringComparison.OrdinalIgnoreCase);
+                if (termIndex >= 0 && (!bestIndex.HasValue || termIndex < bestIndex.Value))
+                {
+                    bestIndex = termIndex;
+                }
+            }
+
+            if (bestIndex.HasValue)
+            {
+                return bestIndex.Value;
+            }
+
+            return text.IndexOf(query, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static IEnumerable<string> ExtractQueryTerms(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return [];
+            }
+
+            return Regex.Matches(query, @"[A-Za-z0-9]{2,}")
+                .Select(m => m.Value)
+                .Distinct(StringComparer.OrdinalIgnoreCase);
         }
     }
 }
