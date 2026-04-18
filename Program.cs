@@ -43,6 +43,7 @@ builder.Services.AddScoped<IReviewService,      ReviewService>();
 builder.Services.AddScoped<IRecommendationService, RecommendationService>();
 builder.Services.AddScoped<ISearchService,          SearchService>();
 builder.Services.AddScoped<ISimilarGamesService,    SimilarGamesService>();
+builder.Services.AddScoped<IDocumentSearchService,  LuceneDocumentSearchService>();
 
 
 
@@ -88,6 +89,24 @@ using (var scope = app.Services.CreateScope())
         {
             await roleManager.CreateAsync(new IdentityRole(role));
         }
+    }
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var documentSearchService = scope.ServiceProvider.GetRequiredService<IDocumentSearchService>();
+    var logger = scope.ServiceProvider
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("LuceneDocumentSearchStartup");
+
+    try
+    {
+        await documentSearchService.RebuildIndexAsync();
+        logger.LogInformation("Lucene document index built successfully on startup.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Failed to build Lucene document index on startup.");
     }
 }
 

@@ -1,0 +1,86 @@
+@using junimo_v3.Models.DocumentSearch
+@model DocumentSearchResultPage
+@{
+    ViewData["Title"] = "Advanced Document Search";
+    var encodedQuery = Uri.EscapeDataString(Model.Query ?? string.Empty);
+    var previousPageUrl = $"/documents/search?q={encodedQuery}&sort={Model.Sort}&page={Model.Page - 1}&pageSize={Model.PageSize}";
+    var nextPageUrl = $"/documents/search?q={encodedQuery}&sort={Model.Sort}&page={Model.Page + 1}&pageSize={Model.PageSize}";
+}
+
+<div class="container my-4">
+    <h2 class="mb-3 text-white">Advanced Document Search</h2>
+
+    <form method="get" asp-controller="DocumentSearch" asp-action="Index" class="row g-2 mb-4">
+        <div class="col-lg-7">
+            <input class="form-control" type="text" name="q" value="@Model.Query" placeholder="Search inside exported PDF content (e.g. rogue like gameplay)" />
+        </div>
+        <div class="col-lg-3">
+            <select class="form-select" name="sort">
+                <option value="@DocumentSearchSort.ScoreDesc" selected="@(Model.Sort == DocumentSearchSort.ScoreDesc ? "selected" : null)">Score ↓ (highest first)</option>
+                <option value="@DocumentSearchSort.ScoreAsc" selected="@(Model.Sort == DocumentSearchSort.ScoreAsc ? "selected" : null)">Score ↑ (lowest first)</option>
+            </select>
+        </div>
+        <div class="col-lg-2 d-grid">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <div class="card mb-4">
+        <div class="card-header text-white">
+            How ranking works (@Model.SimilarityModel)
+        </div>
+        <div class="card-body">
+            <p class="mb-1"><strong>BM25</strong> is used for scoring relevance.</p>
+            <ul class="mb-0">
+                <li><strong>Term frequency (TF):</strong> documents matching query terms more often score higher.</li>
+                <li><strong>Inverse document frequency (IDF):</strong> rarer terms across all indexed documents contribute more.</li>
+                <li><strong>Length normalization:</strong> very long documents are normalized so short focused matches are not drowned out.</li>
+            </ul>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Query))
+    {
+        <p class="text-white">Found <strong>@Model.TotalHits</strong> result(s) for <strong>@Model.Query</strong>.</p>
+
+        @if (Model.Hits.Any())
+        {
+            <div class="list-group mb-4">
+                @foreach (var hit in Model.Hits)
+                {
+                    <a class="list-group-item list-group-item-action" asp-controller="Game" asp-action="GameDetails" asp-route-id="@hit.GameId">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="mb-1">@hit.Title</h5>
+                            <span class="badge bg-dark">Score: @hit.Score.ToString("0.0000")</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(hit.Snippet))
+                        {
+                            <p class="mb-1">@hit.Snippet</p>
+                        }
+                    </a>
+                }
+            </div>
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav aria-label="search result pages">
+                    <ul class="pagination">
+                        <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="@previousPageUrl">Previous</a>
+                        </li>
+                        <li class="page-item disabled">
+                            <span class="page-link">Page @Model.Page of @Model.TotalPages</span>
+                        </li>
+                        <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="@nextPageUrl">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="alert alert-warning">No matching documents found.</div>
+        }
+    }
+</div>
