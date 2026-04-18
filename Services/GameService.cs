@@ -9,16 +9,19 @@ namespace junimo_v3.Services
     public class GameService : IGameService
     {
         private readonly IRepositoryWrapper _repositoryWrapper; 
+        private readonly IDocumentSearchService _documentSearchService;
 
-        public GameService(IRepositoryWrapper repositoryWrapper)
+        public GameService(IRepositoryWrapper repositoryWrapper, IDocumentSearchService documentSearchService)
         {
             _repositoryWrapper = repositoryWrapper;
+            _documentSearchService = documentSearchService;
         }
 
         public async Task CreateGame(Game game)
         {
             _repositoryWrapper.Game.Create(game);
             await _repositoryWrapper.SaveAsync();
+            await _documentSearchService.UpsertGameAsync(game.GameId);
         }
         
         public async Task<IEnumerable<Game>> GetAllGames()
@@ -98,6 +101,7 @@ namespace junimo_v3.Services
 
             _repositoryWrapper.Game.Update(existingGame);
             await _repositoryWrapper.SaveAsync();
+            await _documentSearchService.UpsertGameAsync(existingGame.GameId);
             return true;
         }
 
@@ -112,6 +116,7 @@ namespace junimo_v3.Services
 
             _repositoryWrapper.Game.Delete(game);
             await _repositoryWrapper.SaveAsync();
+            await _documentSearchService.DeleteGameAsync(id);
             return true;
         }
 

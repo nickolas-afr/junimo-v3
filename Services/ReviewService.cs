@@ -8,10 +8,12 @@ namespace junimo_v3.Services
     public class ReviewService : IReviewService
     {
         private readonly IRepositoryWrapper _repository;
+        private readonly IDocumentSearchService _documentSearchService;
 
-        public ReviewService(IRepositoryWrapper repository)
+        public ReviewService(IRepositoryWrapper repository, IDocumentSearchService documentSearchService)
         {
             _repository = repository;
+            _documentSearchService = documentSearchService;
         }
 
         public async Task<IEnumerable<Review>> GetReviewsByGameIdAsync(int gameId)
@@ -43,6 +45,7 @@ namespace junimo_v3.Services
         {
             _repository.Review.Create(review);
             await _repository.SaveAsync();
+            await _documentSearchService.UpsertGameAsync(review.GameId);
             return review;
         }
 
@@ -50,6 +53,7 @@ namespace junimo_v3.Services
         {
             _repository.Review.Update(review);
             await _repository.SaveAsync();
+            await _documentSearchService.UpsertGameAsync(review.GameId);
         }
 
         public async Task DeleteReviewAsync(int reviewId)
@@ -57,8 +61,10 @@ namespace junimo_v3.Services
             var review = await GetReviewByIdAsync(reviewId);
             if (review != null)
             {
+                int gameId = review.GameId;
                 _repository.Review.Delete(review);
                 await _repository.SaveAsync();
+                await _documentSearchService.UpsertGameAsync(gameId);
             }
         }
 
